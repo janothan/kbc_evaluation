@@ -1,6 +1,6 @@
 import os
 
-from evaluator import Evaluator
+from kbc_evaluation.evaluator import Evaluator
 
 
 def test_hits_at():
@@ -8,7 +8,7 @@ def test_hits_at():
     if os.path.isfile(test_file_path):
         pass
     else:
-        test_file_path = "./test_resources/eval_test_file.txt"
+        test_file_path = "test_resources/eval_test_file.txt"
         assert os.path.isfile(test_file_path)
 
     evaluator = Evaluator(file_to_be_evaluated=test_file_path)

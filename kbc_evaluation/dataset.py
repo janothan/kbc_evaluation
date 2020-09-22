@@ -10,10 +10,12 @@ class DataSet(Enum):
     [2]: relative validation set path
     """
 
-    FB15K = "./datasets/fb15k/freebase_mtr100_mte100-test.txt", "./datasets/fb15k/freebase_mtr100_mte100-train.txt", \
-            "./datasets/fb15k/freebase_mtr100_mte100-valid.txt"
-    WN18 = "./datasets/wn18/wordnet-mlj12-test.txt", "./datasets/wn18/wordnet-mlj12-train.txt", \
-           "./datasets/wn18/wordnet-mlj12-valid.txt"
+    FB15K = "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-test.txt", \
+            "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-train.txt", \
+            "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-valid.txt"
+    WN18 = "./kbc_evaluation/datasets/wn18/wordnet-mlj12-test.txt", \
+           "./kbc_evaluation/datasets/wn18/wordnet-mlj12-train.txt", \
+           "./kbc_evaluation/datasets/wn18/wordnet-mlj12-valid.txt"
 
     def test_set(self) -> List[List[str]]:
         """Get the parsed test dataset.

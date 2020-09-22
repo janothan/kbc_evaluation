@@ -1,8 +1,7 @@
 import logging
 
-# noinspection PyArgumentList
-from typing import List
 
+# noinspection PyArgumentList
 logging.basicConfig(handlers=[logging.FileHandler(__file__ + '.log', 'w', 'utf-8'), logging.StreamHandler()],
                     format='%(asctime)s %(levelname)s:%(message)s', level=logging.DEBUG)
 

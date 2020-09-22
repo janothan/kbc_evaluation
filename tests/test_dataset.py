@@ -1,4 +1,4 @@
-from dataset import DataSet
+from kbc_evaluation.dataset import DataSet
 import os.path
 
 
