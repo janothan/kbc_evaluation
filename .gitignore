@@ -140,5 +140,8 @@ cython_debug/
 # MacOS
 *.DS_Store
 
+# PyCharm
+.idea/
+
 # Project specific
 playground.py
