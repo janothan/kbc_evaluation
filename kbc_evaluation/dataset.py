@@ -4,10 +4,10 @@ from enum import Enum
 import io
 from typing import List
 import re
-
-# noinspection PyArgumentList
 from tqdm import tqdm
 
+
+# noinspection PyArgumentList
 logging.basicConfig(handlers=[logging.FileHandler(__file__ + '.log', 'w', 'utf-8'), logging.StreamHandler()],
                     format='%(asctime)s %(levelname)s:%(message)s', level=logging.DEBUG)
 
@@ -130,6 +130,15 @@ class DataSet(Enum):
 class ParsedSet:
 
     def __init__(self, file_to_be_evaluated: str, is_apply_filtering: bool = False):
+        """Constructor. Note that the file is immediately parsed.
+
+        Parameters
+        ----------
+        file_to_be_evaluated : str
+            Path to the file that shall be evaluated.
+        is_apply_filtering : bool
+            True if filtering shall be applied as described in Bordes et al.
+        """
         self.file_to_be_evaluated = file_to_be_evaluated
         self.is_apply_filtering = is_apply_filtering
         self.total_prediction_tasks = 0
@@ -140,6 +149,7 @@ class ParsedSet:
         self._po_map = {}
 
         with open(self.file_to_be_evaluated, "r", encoding="utf8") as f:
+            print("Reading provided file...")
             while True:
                 # read three lines
                 truth = f.readline()
@@ -235,7 +245,7 @@ class ParsedSet:
         else:
             heads = heads_line[len(heads_prefix):]
             heads = heads.replace("\n", "")
-            heads = re.sub("_{[0-9]{0,}[\.|,][0-9]{0,}}", "", heads)  # remove confidences if given
+            heads = re.sub(r"_{[0-9]*[.,][0-9]*}", "", heads)  # remove confidences if given
             heads = heads.split(" ")
 
         # parse tails
@@ -246,7 +256,7 @@ class ParsedSet:
         else:
             tails = tails_line[len(tails_prefix):]
             tails = tails.replace("\n", "")
-            tails = re.sub("_{[0-9]{0,}[\.|,][0-9]{0,}}", "", tails)  # remove confidences if given
+            tails = re.sub(r"_{[0-9]*[.,][0-9]*}", "", tails)  # remove confidences if given
             tails = tails.split(" ")
 
         return truth, heads, tails
