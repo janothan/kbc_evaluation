@@ -1,5 +1,5 @@
 # KBC Evaluation
-<!-- ![![Python CI](https://github.com/janothan/kbc_evaluation/workflows/Python%20CI/badge.svg)](https://github.com/janothan/kbc_evaluation/actions) <br/>-->
+[![Python CI](https://github.com/janothan/kbc_evaluation/workflows/Python%20CI/badge.svg)](https://github.com/janothan/kbc_evaluation/actions) [![Coverage Status](https://coveralls.io/repos/github/janothan/kbc_evaluation/badge.svg)](https://coveralls.io/github/janothan/kbc_evaluation) <br/>-->
 A simple Python project to evaluate knowledge base completion (KBC).
 
 ## Usage
