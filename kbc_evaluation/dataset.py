@@ -1,9 +1,13 @@
 import logging
+import sys
 from enum import Enum
 import io
 from typing import List
+import re
 
 # noinspection PyArgumentList
+from tqdm import tqdm
+
 logging.basicConfig(handlers=[logging.FileHandler(__file__ + '.log', 'w', 'utf-8'), logging.StreamHandler()],
                     format='%(asctime)s %(levelname)s:%(message)s', level=logging.DEBUG)
 
@@ -153,41 +157,44 @@ class ParsedSet:
                 self.triple_predictions[(truth[0], truth[1], truth[2])] = (heads, tails)
                 self.total_prediction_tasks += 2
 
-                if self.is_apply_filtering:
-                    self._apply_filtering()
+            if self.is_apply_filtering:
+                self._apply_filtering()
 
     def _apply_filtering(self) -> None:
         """Loops over self.triple_predictions and applies the filtering.
         """
+        print("Apply Filtering")
         new_triple_predictions = {}
-        for truth, prediction in self.triple_predictions.items():
+        total = len(self.triple_predictions)
+        with tqdm(total=total, file=sys.stdout) as pbar:
+            for truth, prediction in self.triple_predictions.items():
+                # processing heads
+                heads = prediction[0]
+                po_key = truth[1] + "_" + truth[2]
+                correct_heads = self._po_map[po_key]
+                new_heads = []
+                for predicted_head in heads:
+                    if predicted_head == truth[0]:
+                        new_heads.append(predicted_head)
+                        continue
+                    if predicted_head not in correct_heads:
+                        new_heads.append(predicted_head)
 
-            # processing heads
-            heads = prediction[0]
-            po_key = truth[1] + "_" + truth[2]
-            correct_heads = self._po_map[po_key]
-            new_heads = []
-            for predicted_head in heads:
-                if predicted_head == truth[0]:
-                    new_heads.append(predicted_head)
-                    continue
-                if predicted_head not in correct_heads:
-                    new_heads.append(predicted_head)
+                # processing tails
+                tails = prediction[1]
+                sp_key = truth[0] + "_" + truth[1]
+                correct_tails = self._sp_map[sp_key]
+                new_tails = []
+                for predicted_tail in tails:
+                    if predicted_tail == truth[2]:
+                        new_tails.append(predicted_tail)
+                        continue
+                    if predicted_tail not in correct_tails:
+                        new_tails.append(predicted_tail)
 
-            # processing tails
-            tails = prediction[1]
-            sp_key = truth[0] + "_" + truth[1]
-            correct_tails = self._sp_map[sp_key]
-            new_tails = []
-            for predicted_tail in tails:
-                if predicted_tail == truth[2]:
-                    new_tails.append(predicted_tail)
-                    continue
-                if predicted_tail not in correct_tails:
-                    new_tails.append(predicted_tail)
-
-            # replace with new predictions
-            new_triple_predictions[truth] = (new_heads, new_tails)
+                # replace with new predictions
+                new_triple_predictions[truth] = (new_heads, new_tails)
+                pbar.update(1)
         self.triple_predictions = new_triple_predictions
 
     def _parse_lines(self, truth_line: str, heads_line: str, tails_line) -> (List, List, List):
@@ -228,6 +235,7 @@ class ParsedSet:
         else:
             heads = heads_line[len(heads_prefix):]
             heads = heads.replace("\n", "")
+            heads = re.sub("_{[0-9]{0,}[\.|,][0-9]{0,}}", "", heads)  # remove confidences if given
             heads = heads.split(" ")
 
         # parse tails
@@ -238,6 +246,7 @@ class ParsedSet:
         else:
             tails = tails_line[len(tails_prefix):]
             tails = tails.replace("\n", "")
+            tails = re.sub("_{[0-9]{0,}[\.|,][0-9]{0,}}", "", tails)  # remove confidences if given
             tails = tails.split(" ")
 
         return truth, heads, tails

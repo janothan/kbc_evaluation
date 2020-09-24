@@ -54,7 +54,7 @@ class Evaluator:
         total_tasks = self.parsed.total_prediction_tasks
         if total_tasks - ignored_heads > 0:
             mean_head_rank = head_rank / (total_tasks/2 - ignored_heads)
-        if total_tasks - ignored_tails > 0:
+        if total_tasks/2 - ignored_tails > 0:
             mean_tail_rank = tail_rank / (total_tasks/2 - ignored_tails)
 
         logging.info(f"Mean Head Rank: {mean_head_rank} ({ignored_heads} ignored lines)")
@@ -98,7 +98,9 @@ class Evaluator:
 
 
 if __name__ == "__main__":
-    evaluator = Evaluator(file_to_be_evaluated="/Users/janportisch/PycharmProjects/KBC_RDF2Vec/wn_evaluation_file_5000.txt")
+    evaluator = Evaluator(
+        file_to_be_evaluated="/Users/janportisch/PycharmProjects/KBC_RDF2Vec/wn_evaluation_file_5000.txt",
+        is_apply_filtering=True)
     hits_at_10 = evaluator.calculate_hits_at(10)
     test_set_size = len(DataSet.WN18.test_set())
     mr = evaluator.mean_rank()

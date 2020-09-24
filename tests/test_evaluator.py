@@ -24,8 +24,32 @@ def test_hits_at():
     assert evaluator.calculate_hits_at(10) == 4
 
 
+def test_hits_at_with_confidence():
+    test_file_path = "./tests/test_resources/eval_test_file_with_confidences.txt"
+    if not os.path.isfile(test_file_path):
+        os.chdir("./..")
+    assert os.path.isfile(test_file_path)
+
+    evaluator = Evaluator(file_to_be_evaluated=test_file_path)
+    assert evaluator.calculate_hits_at(1) == 2
+    assert evaluator.calculate_hits_at(3) == 3
+    assert evaluator.calculate_hits_at(10) == 4
+
+
 def test_hits_at_filtering():
     test_file_path = "./tests/test_resources/eval_test_file_filtering.txt"
+    if not os.path.isfile(test_file_path):
+        os.chdir("./..")
+    assert os.path.isfile(test_file_path)
+
+    evaluator = Evaluator(file_to_be_evaluated=test_file_path, is_apply_filtering=True)
+    assert evaluator.calculate_hits_at(1) == 2
+    assert evaluator.calculate_hits_at(3) == 4
+    assert evaluator.calculate_hits_at(10) == 6
+
+
+def test_hits_at_filtering_with_confidence():
+    test_file_path = "./tests/test_resources/eval_test_file_filtering_with_confidences.txt"
     if not os.path.isfile(test_file_path):
         os.chdir("./..")
     assert os.path.isfile(test_file_path)
@@ -48,7 +72,22 @@ def test_mean_rank():
     assert evaluator.mean_rank() == 3
 
 
+def test_mean_rank_with_confidence():
+    test_file_path = "./tests/test_resources/eval_test_file_with_confidences.txt"
+    if os.path.isfile(test_file_path):
+        pass
+    else:
+        test_file_path = "test_resources/eval_test_file_with_confidences.txt"
+        assert os.path.isfile(test_file_path)
+
+    evaluator = Evaluator(file_to_be_evaluated=test_file_path)
+    assert evaluator.mean_rank() == 3
+
+
 if __name__ == "__main__":
     test_hits_at()
     test_mean_rank()
     test_hits_at_filtering()
+    test_hits_at_with_confidence()
+    test_hits_at_filtering_with_confidence()
+    test_mean_rank_with_confidence()
