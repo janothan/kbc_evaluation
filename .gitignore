@@ -145,3 +145,4 @@ cython_debug/
 
 # Project specific
 playground.py
+server.py

@@ -31,7 +31,15 @@ class Evaluator:
         self.parsed = ParsedSet(is_apply_filtering=self._is_apply_filtering,
                                 file_to_be_evaluated=self._file_to_be_evaluated)
 
-    def mean_rank(self) -> float:
+    def mean_rank(self) -> int:
+        """Calculates the mean rank using the given file.
+
+        Returns
+        -------
+        int
+            Mean rank as int (rounded float).
+        """
+        print("Calculating Mean Rank")
         ignored_heads = 0
         ignored_tails = 0
         head_rank = 0
@@ -42,9 +50,13 @@ class Evaluator:
                 h_index = prediction[0].index(truth[0]) + 1  # (first position has index 0)
                 head_rank += h_index
             except ValueError:
+                print(f"ERROR: Failed to retrieve head predictions for (correct) head concept: {truth[0]}")
+                logging.error(f"ERROR: Failed to retrieve head predictions for (correct) head concept: {truth[0]}")
                 ignored_heads += 1
             try:
                 t_index = prediction[1].index(truth[2]) + 1  # (first position has index 0)
+                print(f"ERROR: Failed to retrieve tail predictions for (correct) tail concept: {truth[2]}")
+                logging.error(f"ERROR: Failed to retrieve tail predictions for (correct) tail concept: {truth[2]}")
                 tail_rank += t_index
             except ValueError:
                 ignored_tails += 1
