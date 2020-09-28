@@ -120,7 +120,7 @@ class DataSet(Enum):
 
     @staticmethod
     def write_training_file_nt(data_set, file_to_write: str) -> None:
-        """ File in NT format that can be parsed by jRDF2Vec (https://github.com/dwslab/jRDF2Vec).
+        """File in NT format that can be parsed by jRDF2Vec (https://github.com/dwslab/jRDF2Vec).
 
         Parameters
         ----------
@@ -182,8 +182,7 @@ class ParsedSet:
                 self._apply_filtering()
 
     def _apply_filtering(self) -> None:
-        """Loops over self.triple_predictions and applies the filtering.
-        """
+        """Loops over self.triple_predictions and applies the filtering."""
         print("Apply Filtering")
         new_triple_predictions = {}
         total = len(self.triple_predictions)

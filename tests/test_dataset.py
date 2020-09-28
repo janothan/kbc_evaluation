@@ -19,8 +19,7 @@ class TestDataSet:
             assert os.path.isfile(train_path)
 
     def test_write_training_file_nt(self):
-        """Only makes sure that a file is written.
-        """
+        """Only makes sure that a file is written."""
         for i in DataSet:
             file_to_write = f"./{i}_test_file.nt"
             DataSet.write_training_file_nt(data_set=i, file_to_write=file_to_write)
