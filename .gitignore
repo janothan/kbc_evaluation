@@ -147,4 +147,3 @@ cython_debug/
 playground.py
 server.py
 run.py
-.pre-commit-config.yaml
