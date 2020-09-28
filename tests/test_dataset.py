@@ -3,7 +3,6 @@ import os.path
 
 
 class TestDataSet:
-
     def test_files_exist(self):
         """The following is tested
         - Existence of test/valid/train files for every data set in enum DataSet
@@ -45,10 +44,16 @@ class TestDataSet:
             valid_data = data_set.valid_set()
             self._assert_triples_not_none(valid_data)
             # making sure that different files were read:
-            assert test_data[0][0] != train_data[0][0] or test_data[0][1] != train_data[0][1] \
-                   or test_data[0][2] != train_data[0][2]
-            assert train_data[0][0] != valid_data[0][0] or train_data[0][1] != valid_data[0][1] \
-                   or train_data[0][2] != valid_data[0][2]
+            assert (
+                test_data[0][0] != train_data[0][0]
+                or test_data[0][1] != train_data[0][1]
+                or test_data[0][2] != train_data[0][2]
+            )
+            assert (
+                train_data[0][0] != valid_data[0][0]
+                or train_data[0][1] != valid_data[0][1]
+                or train_data[0][2] != valid_data[0][2]
+            )
 
     @staticmethod
     def _assert_triples_not_none(parsed_triples):

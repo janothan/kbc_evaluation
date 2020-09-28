@@ -6,7 +6,6 @@ from kbc_evaluation.evaluator import Evaluator
 
 
 class TestEvaluator:
-
     def test_evaluator_failure(self):
         with pytest.raises(Exception):
             Evaluator(file_to_be_evaluated="xzy")
@@ -41,18 +40,24 @@ class TestEvaluator:
             os.chdir("./..")
         assert os.path.isfile(test_file_path)
 
-        evaluator = Evaluator(file_to_be_evaluated=test_file_path, is_apply_filtering=True)
+        evaluator = Evaluator(
+            file_to_be_evaluated=test_file_path, is_apply_filtering=True
+        )
         assert evaluator.calculate_hits_at(1) == 2
         assert evaluator.calculate_hits_at(3) == 4
         assert evaluator.calculate_hits_at(10) == 6
 
     def test_hits_at_filtering_with_confidence(self):
-        test_file_path = "./tests/test_resources/eval_test_file_filtering_with_confidences.txt"
+        test_file_path = (
+            "./tests/test_resources/eval_test_file_filtering_with_confidences.txt"
+        )
         if not os.path.isfile(test_file_path):
             os.chdir("./..")
         assert os.path.isfile(test_file_path)
 
-        evaluator = Evaluator(file_to_be_evaluated=test_file_path, is_apply_filtering=True)
+        evaluator = Evaluator(
+            file_to_be_evaluated=test_file_path, is_apply_filtering=True
+        )
         assert evaluator.calculate_hits_at(1) == 2
         assert evaluator.calculate_hits_at(3) == 4
         assert evaluator.calculate_hits_at(10) == 6

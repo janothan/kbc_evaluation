@@ -8,8 +8,14 @@ from tqdm import tqdm
 
 
 # noinspection PyArgumentList
-logging.basicConfig(handlers=[logging.FileHandler(__file__ + '.log', 'w', 'utf-8'), logging.StreamHandler()],
-                    format='%(asctime)s %(levelname)s:%(message)s', level=logging.DEBUG)
+logging.basicConfig(
+    handlers=[
+        logging.FileHandler(__file__ + ".log", "w", "utf-8"),
+        logging.StreamHandler(),
+    ],
+    format="%(asctime)s %(levelname)s:%(message)s",
+    level=logging.DEBUG,
+)
 
 
 class DataSet(Enum):
@@ -19,12 +25,16 @@ class DataSet(Enum):
     [2]: relative validation set path
     """
 
-    FB15K = "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-test.txt", \
-            "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-train.txt", \
-            "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-valid.txt"
-    WN18 = "./kbc_evaluation/datasets/wn18/wordnet-mlj12-test.txt", \
-           "./kbc_evaluation/datasets/wn18/wordnet-mlj12-train.txt", \
-           "./kbc_evaluation/datasets/wn18/wordnet-mlj12-valid.txt"
+    FB15K = (
+        "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-test.txt",
+        "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-train.txt",
+        "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-valid.txt",
+    )
+    WN18 = (
+        "./kbc_evaluation/datasets/wn18/wordnet-mlj12-test.txt",
+        "./kbc_evaluation/datasets/wn18/wordnet-mlj12-train.txt",
+        "./kbc_evaluation/datasets/wn18/wordnet-mlj12-valid.txt",
+    )
 
     def test_set(self) -> List[List[str]]:
         """Get the parsed test dataset.
@@ -71,7 +81,7 @@ class DataSet(Enum):
             List of triples.
         """
         result = []
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.replace("\n", "")
                 tokens = line.split(sep="\t")
@@ -120,15 +130,16 @@ class DataSet(Enum):
             The file that shall be written.
         """
 
-        with io.open(file_to_write, 'w+', encoding='utf8') as f:
+        with io.open(file_to_write, "w+", encoding="utf8") as f:
             data_to_write = data_set.train_set()
             data_to_write.extend(data_set.valid_set())
             for triple in data_to_write:
-                f.write("<" + triple[0] + "> <" + triple[1] + "> <" + triple[2] + "> .\n")
+                f.write(
+                    "<" + triple[0] + "> <" + triple[1] + "> <" + triple[2] + "> .\n"
+                )
 
 
 class ParsedSet:
-
     def __init__(self, file_to_be_evaluated: str, is_apply_filtering: bool = False):
         """Constructor. Note that the file is immediately parsed.
 
@@ -207,7 +218,9 @@ class ParsedSet:
                 pbar.update(1)
         self.triple_predictions = new_triple_predictions
 
-    def _parse_lines(self, truth_line: str, heads_line: str, tails_line) -> (List, List, List):
+    def _parse_lines(
+        self, truth_line: str, heads_line: str, tails_line
+    ) -> (List, List, List):
         """Parses three lines from the evaluation file.
 
         Parameters
@@ -243,9 +256,11 @@ class ParsedSet:
         if not heads_line.startswith(heads_prefix):
             logging.error(f"Invalid heads line: {heads_line}")
         else:
-            heads = heads_line[len(heads_prefix):]
+            heads = heads_line[len(heads_prefix) :]
             heads = heads.replace("\n", "")
-            heads = re.sub(r"_{[0-9]*[.,][0-9]*}", "", heads)  # remove confidences if given
+            heads = re.sub(
+                r"_{[0-9]*[.,][0-9]*}", "", heads
+            )  # remove confidences if given
             heads = heads.split(" ")
 
         # parse tails
@@ -254,9 +269,11 @@ class ParsedSet:
         if not tails_line.startswith(tails_prefix):
             logging.error(f"Invalid tails line: {tails_line}")
         else:
-            tails = tails_line[len(tails_prefix):]
+            tails = tails_line[len(tails_prefix) :]
             tails = tails.replace("\n", "")
-            tails = re.sub(r"_{[0-9]*[.,][0-9]*}", "", tails)  # remove confidences if given
+            tails = re.sub(
+                r"_{[0-9]*[.,][0-9]*}", "", tails
+            )  # remove confidences if given
             tails = tails.split(" ")
 
         return truth, heads, tails
