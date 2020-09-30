@@ -2,15 +2,8 @@ import logging
 import os
 from kbc_evaluation.dataset import DataSet, ParsedSet
 
-# noinspection PyArgumentList
-logging.basicConfig(
-    handlers=[
-        logging.FileHandler(__file__ + ".log", "w", "utf-8"),
-        logging.StreamHandler(),
-    ],
-    format="%(asctime)s %(levelname)s:%(message)s",
-    level=logging.DEBUG,
-)
+logging.config.fileConfig(fname="log.conf", disable_existing_loggers=False)
+logger = logging.getLogger(__name__)
 
 
 class Evaluator:

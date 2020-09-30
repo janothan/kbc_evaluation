@@ -1,4 +1,4 @@
-import logging
+import logging.config
 import sys
 from enum import Enum
 import io
@@ -7,15 +7,8 @@ import re
 from tqdm import tqdm
 
 
-# noinspection PyArgumentList
-logging.basicConfig(
-    handlers=[
-        logging.FileHandler(__file__ + ".log", "w", "utf-8"),
-        logging.StreamHandler(),
-    ],
-    format="%(asctime)s %(levelname)s:%(message)s",
-    level=logging.DEBUG,
-)
+logging.config.fileConfig(fname="log.conf", disable_existing_loggers=False)
+logger = logging.getLogger(__name__)
 
 
 class DataSet(Enum):
@@ -241,7 +234,7 @@ class ParsedSet:
         # parse truth
         truth = truth_line.split(" ")
         if len(truth) != 3:
-            logging.error(f"Problem evaluating the following triple: {truth}")
+            logger.error(f"Problem evaluating the following triple: {truth}")
         else:
             truth[2] = truth[2].replace("\n", "")
 
@@ -253,7 +246,7 @@ class ParsedSet:
         heads = []
         heads_prefix = "\tHeads: "
         if not heads_line.startswith(heads_prefix):
-            logging.error(f"Invalid heads line: {heads_line}")
+            logger.error(f"Invalid heads line: {heads_line}")
         else:
             heads = heads_line[len(heads_prefix) :]
             heads = heads.replace("\n", "")
@@ -266,7 +259,7 @@ class ParsedSet:
         tails = []
         tails_prefix = "\tTails: "
         if not tails_line.startswith(tails_prefix):
-            logging.error(f"Invalid tails line: {tails_line}")
+            logger.error(f"Invalid tails line: {tails_line}")
         else:
             tails = tails_line[len(tails_prefix) :]
             tails = tails.replace("\n", "")

@@ -42,3 +42,4 @@ D E F
 
 ### Development Remarks
 - Docstring format: <a href="https://numpy.org/doc/stable/docs/howto_document.html">NumPy/SciPy</a>
+- Code formatting: <a href="https://github.com/psf/black">black</a>
