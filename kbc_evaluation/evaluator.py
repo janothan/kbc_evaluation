@@ -1,4 +1,4 @@
-import logging
+import logging.config
 import os
 from kbc_evaluation.dataset import DataSet, ParsedSet
 
@@ -125,3 +125,61 @@ class Evaluator:
         logging.info(f"Hits@{n} Tails: {tails_hits}")
         logging.info(f"Hits@{n} Total: {result}")
         return result
+
+    @staticmethod
+    def write_results_to_file(
+        file_to_be_evaluated: str,
+        data_set: DataSet,
+        file_to_be_written: str = "./results.txt",
+    ) -> None:
+        """Executes a filtered and non-filtered evaluation and prints the results to the console and to a file.
+
+        Parameters
+        ----------
+        file_to_be_evaluated : str
+            File path to the file that shall be evaluated.
+        data_set : DataSet
+            The data set that is under evaluation.
+        file_to_be_written : str
+            File path to the file that shall be written.
+        """
+        evaluator = Evaluator(
+            file_to_be_evaluated=file_to_be_evaluated,
+            is_apply_filtering=False,
+        )
+        hits_at_10 = evaluator.calculate_hits_at(10)
+        test_set_size = len(data_set.test_set())
+        mr = evaluator.mean_rank()
+
+        non_filtered_text = (
+            f"\nThis is the evaluation of file {file_to_be_evaluated}\n\n"
+            + "Non-filtered Results\n"
+            + "--------------------\n"
+            + f"Test set size: {test_set_size}\n"
+            + f"Hits at 10: {hits_at_10}\n"
+            + f"Relative Hits at 10: {hits_at_10 / (2 * test_set_size)}\n"
+            + f"Mean rank: {mr}\n"
+        )
+
+        evaluator = Evaluator(
+            file_to_be_evaluated=file_to_be_evaluated,
+            is_apply_filtering=True,
+        )
+        hits_at_10 = evaluator.calculate_hits_at(10)
+        test_set_size = len(data_set.test_set())
+        mr = evaluator.mean_rank()
+
+        filtered_text = (
+            "\nFiltered Results\n"
+            + "----------------\n"
+            + f"Test set size: {test_set_size}\n"
+            + f"Hits at 10: {hits_at_10}\n"
+            + f"Relative Hits at 10: {hits_at_10 / (2 * test_set_size)}\n"
+            + f"Mean rank: {mr}\n"
+        )
+
+        with open(file_to_be_written, "w+", encoding="utf8") as f:
+            f.write(non_filtered_text + "\n")
+            f.write(filtered_text)
+
+        print(non_filtered_text + "\n" + filtered_text)

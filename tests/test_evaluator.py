@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from kbc_evaluation.dataset import DataSet
 from kbc_evaluation.evaluator import Evaluator
 
 
@@ -64,32 +65,28 @@ class TestEvaluator:
 
     def test_mean_rank(self):
         test_file_path = "./tests/test_resources/eval_test_file.txt"
-        if os.path.isfile(test_file_path):
-            pass
-        else:
-            test_file_path = "test_resources/eval_test_file.txt"
-            assert os.path.isfile(test_file_path)
-
+        assert os.path.isfile(test_file_path)
         evaluator = Evaluator(file_to_be_evaluated=test_file_path)
         assert evaluator.mean_rank() == 3
 
     def test_mean_rank_with_confidence(self):
         test_file_path = "./tests/test_resources/eval_test_file_with_confidences.txt"
-        if os.path.isfile(test_file_path):
-            pass
-        else:
-            test_file_path = "test_resources/eval_test_file_with_confidences.txt"
-            assert os.path.isfile(test_file_path)
-
+        assert os.path.isfile(test_file_path)
         evaluator = Evaluator(file_to_be_evaluated=test_file_path)
         assert evaluator.mean_rank() == 3
 
-
-if __name__ == "__main__":
-    e = Evaluator()
-    e.test_hits_at()
-    e.test_mean_rank()
-    e.test_hits_at_filtering()
-    e.test_hits_at_with_confidence()
-    e.test_hits_at_filtering_with_confidence()
-    e.test_mean_rank_with_confidence()
+    def test_write_results_to_file(self):
+        test_file_path = "./tests/test_resources/eval_test_file.txt"
+        assert os.path.isfile(test_file_path)
+        Evaluator.write_results_to_file(
+            file_to_be_evaluated=test_file_path, data_set=DataSet.WN18
+        )
+        assert os.path.isfile("./results.txt")
+        os.remove("./results.txt")
+        Evaluator.write_results_to_file(
+            file_to_be_evaluated=test_file_path,
+            file_to_be_written="./results_test.txt",
+            data_set=DataSet.WN18,
+        )
+        assert os.path.isfile("./results_test.txt")
+        os.remove("./results_test.txt")
