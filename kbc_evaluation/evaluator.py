@@ -1,5 +1,7 @@
 import logging.config
 import os
+from typing import Tuple
+
 from kbc_evaluation.dataset import DataSet, ParsedSet
 
 logging.config.fileConfig(fname="log.conf", disable_existing_loggers=False)
@@ -35,13 +37,16 @@ class Evaluator:
             file_to_be_evaluated=self._file_to_be_evaluated,
         )
 
-    def mean_rank(self) -> int:
+    def mean_rank(self) -> Tuple[int, int, int]:
         """Calculates the mean rank using the given file.
 
         Returns
         -------
-        int
-            Mean rank as int (rounded float).
+        Tuple[int, int, int]
+            [0] Mean rank as int for heads (rounded float).
+            [0] Mean rank as int for tails (rounded float).
+            [0] Mean rank as int (rounded float).
+
         """
         print("Calculating Mean Rank")
         ignored_heads = 0
@@ -95,9 +100,9 @@ class Evaluator:
             )
         mean_rank_rounded = round(mean_rank)
         logging.info(f"Mean rank: {mean_rank}; rounded: {mean_rank_rounded}")
-        return mean_rank_rounded
+        return round(mean_head_rank), round(mean_tail_rank), mean_rank_rounded
 
-    def calculate_hits_at(self, n: int = 10) -> int:
+    def calculate_hits_at(self, n: int = 10) -> Tuple[int, int, int]:
         """Calculation of hits@n.
 
         Parameters
@@ -107,8 +112,10 @@ class Evaluator:
 
         Returns
         -------
-        int
-            The hits at n. Note that head hits and tail hits are added.
+        Tuple[int, int, int]
+            [0] Hits at n only for heads.
+            [1] Hits at n only for tails.
+            [2] The hits at n. Note that head hits and tail hits are added.
         """
         heads_hits = 0
         tails_hits = 0
@@ -124,7 +131,7 @@ class Evaluator:
         logging.info(f"Hits@{n} Heads: {heads_hits}")
         logging.info(f"Hits@{n} Tails: {tails_hits}")
         logging.info(f"Hits@{n} Total: {result}")
-        return result
+        return heads_hits, tails_hits, result
 
     @staticmethod
     def write_results_to_file(
@@ -156,9 +163,13 @@ class Evaluator:
             + "Non-filtered Results\n"
             + "--------------------\n"
             + f"Test set size: {test_set_size}\n"
-            + f"Hits at 10: {hits_at_10}\n"
-            + f"Relative Hits at 10: {hits_at_10 / (2 * test_set_size)}\n"
-            + f"Mean rank: {mr}\n"
+            + f"Hits at 10 (Heads): {hits_at_10[0]}\n"
+            + f"Hits at 10 (Tails): {hits_at_10[1]}\n"
+            + f"Hits at 10 (All): {hits_at_10[2]}\n"
+            + f"Relative Hits at 10: {hits_at_10[2] / (2 * test_set_size)}\n"
+            + f"Mean rank (Heads): {mr[0]}\n"
+            + f"Mean rank (Tails): {mr[1]}\n"
+            + f"Mean rank (All): {mr[2]}\n"
         )
 
         evaluator = Evaluator(
@@ -173,9 +184,13 @@ class Evaluator:
             "\nFiltered Results\n"
             + "----------------\n"
             + f"Test set size: {test_set_size}\n"
-            + f"Hits at 10: {hits_at_10}\n"
-            + f"Relative Hits at 10: {hits_at_10 / (2 * test_set_size)}\n"
-            + f"Mean rank: {mr}\n"
+            + f"Hits at 10 (Heads): {hits_at_10[0]}\n"
+            + f"Hits at 10 (Tails): {hits_at_10[1]}\n"
+            + f"Hits at 10 (All): {hits_at_10[2]}\n"
+            + f"Relative Hits at 10: {hits_at_10[2] / (2 * test_set_size)}\n"
+            + f"Mean rank (Heads): {mr[0]}\n"
+            + f"Mean rank (Tails): {mr[1]}\n"
+            + f"Mean rank (All): {mr[2]}\n"
         )
 
         with open(file_to_be_written, "w+", encoding="utf8") as f:

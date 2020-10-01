@@ -20,9 +20,9 @@ class TestEvaluator:
         assert os.path.isfile(test_file_path)
 
         evaluator = Evaluator(file_to_be_evaluated=test_file_path)
-        assert evaluator.calculate_hits_at(1) == 2
-        assert evaluator.calculate_hits_at(3) == 3
-        assert evaluator.calculate_hits_at(10) == 4
+        assert evaluator.calculate_hits_at(1)[2] == 2
+        assert evaluator.calculate_hits_at(3)[2] == 3
+        assert evaluator.calculate_hits_at(10)[2] == 4
 
     def test_hits_at_with_confidence(self):
         test_file_path = "./tests/test_resources/eval_test_file_with_confidences.txt"
@@ -31,9 +31,9 @@ class TestEvaluator:
         assert os.path.isfile(test_file_path)
 
         evaluator = Evaluator(file_to_be_evaluated=test_file_path)
-        assert evaluator.calculate_hits_at(1) == 2
-        assert evaluator.calculate_hits_at(3) == 3
-        assert evaluator.calculate_hits_at(10) == 4
+        assert evaluator.calculate_hits_at(1)[2] == 2
+        assert evaluator.calculate_hits_at(3)[2] == 3
+        assert evaluator.calculate_hits_at(10)[2] == 4
 
     def test_hits_at_filtering(self):
         test_file_path = "./tests/test_resources/eval_test_file_filtering.txt"
@@ -44,9 +44,9 @@ class TestEvaluator:
         evaluator = Evaluator(
             file_to_be_evaluated=test_file_path, is_apply_filtering=True
         )
-        assert evaluator.calculate_hits_at(1) == 2
-        assert evaluator.calculate_hits_at(3) == 4
-        assert evaluator.calculate_hits_at(10) == 6
+        assert evaluator.calculate_hits_at(1)[2] == 2
+        assert evaluator.calculate_hits_at(3)[2] == 4
+        assert evaluator.calculate_hits_at(10)[2] == 6
 
     def test_hits_at_filtering_with_confidence(self):
         test_file_path = (
@@ -59,21 +59,21 @@ class TestEvaluator:
         evaluator = Evaluator(
             file_to_be_evaluated=test_file_path, is_apply_filtering=True
         )
-        assert evaluator.calculate_hits_at(1) == 2
-        assert evaluator.calculate_hits_at(3) == 4
-        assert evaluator.calculate_hits_at(10) == 6
+        assert evaluator.calculate_hits_at(1)[2] == 2
+        assert evaluator.calculate_hits_at(3)[2] == 4
+        assert evaluator.calculate_hits_at(10)[2] == 6
 
     def test_mean_rank(self):
         test_file_path = "./tests/test_resources/eval_test_file.txt"
         assert os.path.isfile(test_file_path)
         evaluator = Evaluator(file_to_be_evaluated=test_file_path)
-        assert evaluator.mean_rank() == 3
+        assert evaluator.mean_rank()[2] == 3
 
     def test_mean_rank_with_confidence(self):
         test_file_path = "./tests/test_resources/eval_test_file_with_confidences.txt"
         assert os.path.isfile(test_file_path)
         evaluator = Evaluator(file_to_be_evaluated=test_file_path)
-        assert evaluator.mean_rank() == 3
+        assert evaluator.mean_rank()[2] == 3
 
     def test_write_results_to_file(self):
         test_file_path = "./tests/test_resources/eval_test_file.txt"
