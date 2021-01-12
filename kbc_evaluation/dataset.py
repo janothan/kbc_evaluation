@@ -1,3 +1,4 @@
+import os
 import logging.config
 import sys
 from enum import Enum
@@ -10,6 +11,9 @@ from tqdm import tqdm
 logging.config.fileConfig(fname="log.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
+# making sure that the relative path works
+package_directory = os.path.dirname(os.path.abspath(__file__))
+
 
 class DataSet(Enum):
     """The datasets that are available for evaluation. If a new enum value shall be added, a triple is to be stated with
@@ -19,14 +23,20 @@ class DataSet(Enum):
     """
 
     FB15K = (
-        "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-test.txt",
-        "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-train.txt",
-        "./kbc_evaluation/datasets/fb15k/freebase_mtr100_mte100-valid.txt",
+        os.path.join(
+            package_directory, "datasets", "fb15k", "freebase_mtr100_mte100-test.txt"
+        ),
+        os.path.join(
+            package_directory, "datasets", "fb15k", "freebase_mtr100_mte100-train.txt"
+        ),
+        os.path.join(
+            package_directory, "datasets", "fb15k", "freebase_mtr100_mte100-valid.txt"
+        ),
     )
     WN18 = (
-        "./kbc_evaluation/datasets/wn18/wordnet-mlj12-test.txt",
-        "./kbc_evaluation/datasets/wn18/wordnet-mlj12-train.txt",
-        "./kbc_evaluation/datasets/wn18/wordnet-mlj12-valid.txt",
+        os.path.join(package_directory, "datasets", "wn18", "wordnet-mlj12-test.txt"),
+        os.path.join(package_directory, "datasets", "wn18", "wordnet-mlj12-train.txt"),
+        os.path.join(package_directory, "datasets", "wn18", "wordnet-mlj12-valid.txt"),
     )
 
     def test_set(self) -> List[List[str]]:
