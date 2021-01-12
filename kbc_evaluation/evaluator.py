@@ -4,8 +4,8 @@ from typing import Tuple
 
 from kbc_evaluation.dataset import DataSet, ParsedSet
 
-logging.config.fileConfig(fname="log.conf", disable_existing_loggers=False)
-logger = logging.getLogger(__name__)
+logconf_file = os.path.join(os.path.dirname(__file__), "log.conf")
+logging.config.fileConfig(fname=logconf_file, disable_existing_loggers=False)
 
 
 class Evaluator:

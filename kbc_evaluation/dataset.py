@@ -7,8 +7,8 @@ from typing import List
 import re
 from tqdm import tqdm
 
-
-logging.config.fileConfig(fname="log.conf", disable_existing_loggers=False)
+logconf_file = os.path.join(os.path.dirname(__file__), "log.conf")
+logging.config.fileConfig(fname=logconf_file, disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 # making sure that the relative path works

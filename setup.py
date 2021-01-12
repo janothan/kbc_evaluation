@@ -9,4 +9,7 @@ setup(
     author="Jan Portisch",
     author_email="jan@informatik.uni-mannheim.de",
     description="Allows to evaluate link prediction text files.",
+    package_data={
+        "kbc_evaluation": ["log.conf", "datasets/fb15k/*", "datasets/wn18/*"]
+    },
 )
