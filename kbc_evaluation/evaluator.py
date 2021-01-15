@@ -259,7 +259,7 @@ class Evaluator:
             + f"Relative Hits at {result_object.n}: {result_object.non_filtered_hits_at_n_relative}\n"
             + f"Mean rank (Heads): {result_object.non_filtered_mean_rank_heads}\n"
             + f"Mean rank (Tails): {result_object.non_filtered_mean_rank_tails}\n"
-            + f"Mean rank (All): {result_object.evaluated_file}\n"
+            + f"Mean rank (All): {result_object.non_filtered_mean_rank_all}\n"
         )
 
         filtered_text = (
