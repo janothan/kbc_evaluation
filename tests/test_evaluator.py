@@ -45,16 +45,19 @@ class TestEvaluator:
             file_to_be_evaluated=test_file_path, data_set=DataSet.WN18, n=1
         )
         assert results.filtered_hits_at_n_all == 2
+        assert results.n == 1
 
         results = Evaluator.calculate_results(
             file_to_be_evaluated=test_file_path, data_set=DataSet.WN18, n=3
         )
         assert results.filtered_hits_at_n_all == 3
+        assert results.n == 3
 
         results = Evaluator.calculate_results(
             file_to_be_evaluated=test_file_path, data_set=DataSet.WN18, n=10
         )
         assert results.filtered_hits_at_n_all == 4
+        assert results.n == 10
 
     def test_hits_at_filtering(self):
         test_file_path = "./tests/test_resources/eval_test_file_filtering.txt"

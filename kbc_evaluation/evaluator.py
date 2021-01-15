@@ -15,6 +15,7 @@ class EvaluatorResult:
         self,
         evaluated_file: str,
         test_set_size: int,
+        n: int,
         filtered_hits_at_n_heads: int,
         filtered_hits_at_n_tails: int,
         filtered_hits_at_n_all: int,
@@ -31,6 +32,7 @@ class EvaluatorResult:
         # setting the general variables
         self.evaluated_file = evaluated_file
         self.test_set_size = test_set_size
+        self.n = n
 
         # setting the filtered results
         self.filtered_hits_at_n_heads = filtered_hits_at_n_heads
@@ -226,6 +228,7 @@ class Evaluator:
         return EvaluatorResult(
             evaluated_file=file_to_be_evaluated,
             test_set_size=test_set_size,
+            n=n,
             filtered_hits_at_n_heads=filtered_hits_at_10[0],
             filtered_hits_at_n_tails=filtered_hits_at_10[1],
             filtered_hits_at_n_all=filtered_hits_at_10[2],
@@ -244,17 +247,16 @@ class Evaluator:
     def _write_result_object_to_file(
         file_to_be_written: str,
         result_object: EvaluatorResult,
-        n: int,
     ) -> None:
         non_filtered_text = (
             f"\nThis is the evaluation of file {result_object.evaluated_file}\n\n"
             + "Non-filtered Results\n"
             + "--------------------\n"
             + f"Test set size: {result_object.test_set_size}\n"
-            + f"Hits at {n} (Heads): {result_object.non_filtered_hits_at_n_heads}\n"
-            + f"Hits at {n} (Tails): {result_object.non_filtered_hits_at_n_tails}\n"
-            + f"Hits at {n} (All): {result_object.non_filtered_hits_at_n_all}\n"
-            + f"Relative Hits at {n}: {result_object.non_filtered_hits_at_n_relative}\n"
+            + f"Hits at {result_object.n} (Heads): {result_object.non_filtered_hits_at_n_heads}\n"
+            + f"Hits at {result_object.n} (Tails): {result_object.non_filtered_hits_at_n_tails}\n"
+            + f"Hits at {result_object.n} (All): {result_object.non_filtered_hits_at_n_all}\n"
+            + f"Relative Hits at {result_object.n}: {result_object.non_filtered_hits_at_n_relative}\n"
             + f"Mean rank (Heads): {result_object.non_filtered_mean_rank_heads}\n"
             + f"Mean rank (Tails): {result_object.non_filtered_mean_rank_tails}\n"
             + f"Mean rank (All): {result_object.evaluated_file}\n"
@@ -264,10 +266,10 @@ class Evaluator:
             "\nFiltered Results\n"
             + "----------------\n"
             + f"Test set size: {result_object.test_set_size}\n"
-            + f"Hits at {n} (Heads): {result_object.filtered_hits_at_n_heads}\n"
-            + f"Hits at {n} (Tails): {result_object.filtered_hits_at_n_tails}\n"
-            + f"Hits at {n} (All): {result_object.filtered_hits_at_n_all}\n"
-            + f"Relative Hits at {n}: {result_object.filtered_hits_at_n_relative}\n"
+            + f"Hits at {result_object.n} (Heads): {result_object.filtered_hits_at_n_heads}\n"
+            + f"Hits at {result_object.n} (Tails): {result_object.filtered_hits_at_n_tails}\n"
+            + f"Hits at {result_object.n} (All): {result_object.filtered_hits_at_n_all}\n"
+            + f"Relative Hits at {result_object.n}: {result_object.filtered_hits_at_n_relative}\n"
             + f"Mean rank (Heads): {result_object.filtered_mean_rank_heads}\n"
             + f"Mean rank (Tails): {result_object.filtered_mean_rank_tails}\n"
             + f"Mean rank (All): {result_object.filtered_mean_rank_all}\n"
@@ -301,12 +303,10 @@ class Evaluator:
         results = Evaluator.calculate_results(
             file_to_be_evaluated=file_to_be_evaluated,
             data_set=data_set,
-            n=10,
         )
 
         # write the results to the specified file
         Evaluator._write_result_object_to_file(
             file_to_be_written=file_to_be_written,
             result_object=results,
-            n=10,
         )
