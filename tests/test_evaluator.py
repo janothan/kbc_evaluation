@@ -3,15 +3,15 @@ import os
 import pytest
 
 from kbc_evaluation.dataset import DataSet
-from kbc_evaluation.evaluator import Evaluator
+from kbc_evaluation.evaluator import EvaluationRunner, Evaluator
 
 
 class TestEvaluator:
     def test_evaluator_failure(self):
         with pytest.raises(Exception):
-            Evaluator(file_to_be_evaluated="xzy")
+            EvaluationRunner(file_to_be_evaluated="xzy")
         with pytest.raises(Exception):
-            Evaluator()
+            EvaluationRunner()
 
     def test_hits_at(self):
         test_file_path = "./tests/test_resources/eval_test_file.txt"
@@ -19,7 +19,7 @@ class TestEvaluator:
             os.chdir("./..")
         assert os.path.isfile(test_file_path)
 
-        evaluator = Evaluator(file_to_be_evaluated=test_file_path)
+        evaluator = EvaluationRunner(file_to_be_evaluated=test_file_path)
         assert evaluator.calculate_hits_at(1)[2] == 2
         assert evaluator.calculate_hits_at(3)[2] == 3
         assert evaluator.calculate_hits_at(10)[2] == 4
@@ -30,7 +30,7 @@ class TestEvaluator:
             os.chdir("./..")
         assert os.path.isfile(test_file_path)
 
-        evaluator = Evaluator(file_to_be_evaluated=test_file_path)
+        evaluator = EvaluationRunner(file_to_be_evaluated=test_file_path)
         assert evaluator.calculate_hits_at(1)[2] == 2
         assert evaluator.calculate_hits_at(3)[2] == 3
         assert evaluator.calculate_hits_at(10)[2] == 4
@@ -62,7 +62,7 @@ class TestEvaluator:
             os.chdir("./..")
         assert os.path.isfile(test_file_path)
 
-        evaluator = Evaluator(
+        evaluator = EvaluationRunner(
             file_to_be_evaluated=test_file_path, is_apply_filtering=True
         )
         assert evaluator.calculate_hits_at(1)[2] == 2
@@ -77,7 +77,7 @@ class TestEvaluator:
             os.chdir("./..")
         assert os.path.isfile(test_file_path)
 
-        evaluator = Evaluator(
+        evaluator = EvaluationRunner(
             file_to_be_evaluated=test_file_path, is_apply_filtering=True
         )
         assert evaluator.calculate_hits_at(1)[2] == 2
@@ -87,13 +87,13 @@ class TestEvaluator:
     def test_mean_rank(self):
         test_file_path = "./tests/test_resources/eval_test_file.txt"
         assert os.path.isfile(test_file_path)
-        evaluator = Evaluator(file_to_be_evaluated=test_file_path)
+        evaluator = EvaluationRunner(file_to_be_evaluated=test_file_path)
         assert evaluator.mean_rank()[2] == 3
 
     def test_mean_rank_with_confidence(self):
         test_file_path = "./tests/test_resources/eval_test_file_with_confidences.txt"
         assert os.path.isfile(test_file_path)
-        evaluator = Evaluator(file_to_be_evaluated=test_file_path)
+        evaluator = EvaluationRunner(file_to_be_evaluated=test_file_path)
         assert evaluator.mean_rank()[2] == 3
 
     def test_write_results_to_file(self):

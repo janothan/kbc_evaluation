@@ -55,7 +55,9 @@ class EvaluatorResult:
         self.non_filtered_mean_rank_all = non_filtered_mean_rank_all
 
 
-class Evaluator:
+class EvaluationRunner:
+    """This class calculates evaluation scores for a single file."""
+
     def __init__(self, file_to_be_evaluated: str, is_apply_filtering: bool = False):
         """Constructor
 
@@ -180,6 +182,10 @@ class Evaluator:
         logging.info(f"Hits@{n} Total: {result}")
         return heads_hits, tails_hits, result
 
+
+class Evaluator:
+    """This class provides powerful evaluation reporting capabilities."""
+
     @staticmethod
     def calculate_results(
         file_to_be_evaluated: str,
@@ -201,7 +207,7 @@ class Evaluator:
             The result data structure.
         """
 
-        evaluator = Evaluator(
+        evaluator = EvaluationRunner(
             file_to_be_evaluated=file_to_be_evaluated,
             is_apply_filtering=False,
         )
@@ -210,7 +216,7 @@ class Evaluator:
         test_set_size = len(data_set.test_set())
         non_filtered_mr = evaluator.mean_rank()
 
-        evaluator = Evaluator(
+        evaluator = EvaluationRunner(
             file_to_be_evaluated=file_to_be_evaluated,
             is_apply_filtering=True,
         )
