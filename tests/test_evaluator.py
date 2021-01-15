@@ -35,6 +35,27 @@ class TestEvaluator:
         assert evaluator.calculate_hits_at(3)[2] == 3
         assert evaluator.calculate_hits_at(10)[2] == 4
 
+    def test_calculate_results_no_filtering(self):
+        test_file_path = "./tests/test_resources/eval_test_file_with_confidences.txt"
+        if not os.path.isfile(test_file_path):
+            os.chdir("./..")
+        assert os.path.isfile(test_file_path)
+
+        results = Evaluator.calculate_results(
+            file_to_be_evaluated=test_file_path, data_set=DataSet.WN18, n=1
+        )
+        assert results.filtered_hits_at_n_all == 2
+
+        results = Evaluator.calculate_results(
+            file_to_be_evaluated=test_file_path, data_set=DataSet.WN18, n=3
+        )
+        assert results.filtered_hits_at_n_all == 3
+
+        results = Evaluator.calculate_results(
+            file_to_be_evaluated=test_file_path, data_set=DataSet.WN18, n=10
+        )
+        assert results.filtered_hits_at_n_all == 4
+
     def test_hits_at_filtering(self):
         test_file_path = "./tests/test_resources/eval_test_file_filtering.txt"
         if not os.path.isfile(test_file_path):

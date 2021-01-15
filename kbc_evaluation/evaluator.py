@@ -8,6 +8,53 @@ logconf_file = os.path.join(os.path.dirname(__file__), "log.conf")
 logging.config.fileConfig(fname=logconf_file, disable_existing_loggers=False)
 
 
+class EvaluatorResult:
+    """Object holding the results of the evaluation process"""
+
+    def __init__(
+        self,
+        evaluated_file: str,
+        test_set_size: int,
+        filtered_hits_at_n_heads: int,
+        filtered_hits_at_n_tails: int,
+        filtered_hits_at_n_all: int,
+        filtered_mean_rank_heads: int,
+        filtered_mean_rank_tails: int,
+        filtered_mean_rank_all: int,
+        non_filtered_hits_at_n_heads: int,
+        non_filtered_hits_at_n_tails: int,
+        non_filtered_hits_at_n_all: int,
+        non_filtered_mean_rank_heads: int,
+        non_filtered_mean_rank_tails: int,
+        non_filtered_mean_rank_all: int,
+    ):
+        # setting the general variables
+        self.evaluated_file = evaluated_file
+        self.test_set_size = test_set_size
+
+        # setting the filtered results
+        self.filtered_hits_at_n_heads = filtered_hits_at_n_heads
+        self.filtered_hits_at_n_tails = filtered_hits_at_n_tails
+        self.filtered_hits_at_n_all = filtered_hits_at_n_all
+        self.filtered_hits_at_n_relative = self.filtered_hits_at_n_all / (
+            2 * test_set_size
+        )
+        self.filtered_mean_rank_heads = filtered_mean_rank_heads
+        self.filtered_mean_rank_tails = filtered_mean_rank_tails
+        self.filtered_mean_rank_all = filtered_mean_rank_all
+
+        # setting the non-filtered results
+        self.non_filtered_hits_at_n_heads = non_filtered_hits_at_n_heads
+        self.non_filtered_hits_at_n_tails = non_filtered_hits_at_n_tails
+        self.non_filtered_hits_at_n_all = non_filtered_hits_at_n_all
+        self.non_filtered_hits_at_n_relative = self.non_filtered_hits_at_n_all / (
+            2 * test_set_size
+        )
+        self.non_filtered_mean_rank_heads = non_filtered_mean_rank_heads
+        self.non_filtered_mean_rank_tails = non_filtered_mean_rank_tails
+        self.non_filtered_mean_rank_all = non_filtered_mean_rank_all
+
+
 class Evaluator:
     def __init__(self, file_to_be_evaluated: str, is_apply_filtering: bool = False):
         """Constructor
@@ -134,6 +181,99 @@ class Evaluator:
         return heads_hits, tails_hits, result
 
     @staticmethod
+    def calculate_results(
+        file_to_be_evaluated: str,
+        data_set: DataSet,
+        n: int = 10,
+    ) -> EvaluatorResult:
+        """Given the file_to_be_evaluated and a data_set, this method calculates hits at n.
+
+        Parameters
+        ----------
+        file_to_be_evaluated : str
+        data_set : DataSet
+        n : int
+            Hits@n. This parameter specifies the n. Default value 10.
+
+        Returns
+        -------
+        EvaluatorResult
+            The result data structure.
+        """
+
+        evaluator = Evaluator(
+            file_to_be_evaluated=file_to_be_evaluated,
+            is_apply_filtering=False,
+        )
+
+        non_filtered_hits_at_10 = evaluator.calculate_hits_at(n)
+        test_set_size = len(data_set.test_set())
+        non_filtered_mr = evaluator.mean_rank()
+
+        evaluator = Evaluator(
+            file_to_be_evaluated=file_to_be_evaluated,
+            is_apply_filtering=True,
+        )
+        filtered_hits_at_10 = evaluator.calculate_hits_at(n)
+        filtered_mr = evaluator.mean_rank()
+
+        return EvaluatorResult(
+            evaluated_file=file_to_be_evaluated,
+            test_set_size=test_set_size,
+            filtered_hits_at_n_heads=filtered_hits_at_10[0],
+            filtered_hits_at_n_tails=filtered_hits_at_10[1],
+            filtered_hits_at_n_all=filtered_hits_at_10[2],
+            filtered_mean_rank_heads=filtered_mr[0],
+            filtered_mean_rank_tails=filtered_mr[1],
+            filtered_mean_rank_all=filtered_mr[2],
+            non_filtered_hits_at_n_heads=non_filtered_hits_at_10[0],
+            non_filtered_hits_at_n_tails=non_filtered_hits_at_10[1],
+            non_filtered_hits_at_n_all=non_filtered_hits_at_10[2],
+            non_filtered_mean_rank_heads=non_filtered_mr[0],
+            non_filtered_mean_rank_tails=non_filtered_mr[1],
+            non_filtered_mean_rank_all=non_filtered_mr[2],
+        )
+
+    @staticmethod
+    def _write_result_object_to_file(
+        file_to_be_written: str,
+        result_object: EvaluatorResult,
+        n: int,
+    ) -> None:
+        non_filtered_text = (
+            f"\nThis is the evaluation of file {result_object.evaluated_file}\n\n"
+            + "Non-filtered Results\n"
+            + "--------------------\n"
+            + f"Test set size: {result_object.test_set_size}\n"
+            + f"Hits at {n} (Heads): {result_object.non_filtered_hits_at_n_heads}\n"
+            + f"Hits at {n} (Tails): {result_object.non_filtered_hits_at_n_tails}\n"
+            + f"Hits at {n} (All): {result_object.non_filtered_hits_at_n_all}\n"
+            + f"Relative Hits at {n}: {result_object.non_filtered_hits_at_n_relative}\n"
+            + f"Mean rank (Heads): {result_object.non_filtered_mean_rank_heads}\n"
+            + f"Mean rank (Tails): {result_object.non_filtered_mean_rank_tails}\n"
+            + f"Mean rank (All): {result_object.evaluated_file}\n"
+        )
+
+        filtered_text = (
+            "\nFiltered Results\n"
+            + "----------------\n"
+            + f"Test set size: {result_object.test_set_size}\n"
+            + f"Hits at {n} (Heads): {result_object.filtered_hits_at_n_heads}\n"
+            + f"Hits at {n} (Tails): {result_object.filtered_hits_at_n_tails}\n"
+            + f"Hits at {n} (All): {result_object.filtered_hits_at_n_all}\n"
+            + f"Relative Hits at {n}: {result_object.filtered_hits_at_n_relative}\n"
+            + f"Mean rank (Heads): {result_object.filtered_mean_rank_heads}\n"
+            + f"Mean rank (Tails): {result_object.filtered_mean_rank_tails}\n"
+            + f"Mean rank (All): {result_object.filtered_mean_rank_all}\n"
+        )
+
+        with open(file_to_be_written, "w+", encoding="utf8") as f:
+            f.write(non_filtered_text + "\n")
+            f.write(filtered_text)
+
+        print(non_filtered_text + "\n" + filtered_text)
+
+    @staticmethod
     def write_results_to_file(
         file_to_be_evaluated: str,
         data_set: DataSet,
@@ -150,51 +290,17 @@ class Evaluator:
         file_to_be_written : str
             File path to the file that shall be written.
         """
-        evaluator = Evaluator(
+
+        # calculate the results
+        results = Evaluator.calculate_results(
             file_to_be_evaluated=file_to_be_evaluated,
-            is_apply_filtering=False,
-        )
-        hits_at_10 = evaluator.calculate_hits_at(10)
-        test_set_size = len(data_set.test_set())
-        mr = evaluator.mean_rank()
-
-        non_filtered_text = (
-            f"\nThis is the evaluation of file {file_to_be_evaluated}\n\n"
-            + "Non-filtered Results\n"
-            + "--------------------\n"
-            + f"Test set size: {test_set_size}\n"
-            + f"Hits at 10 (Heads): {hits_at_10[0]}\n"
-            + f"Hits at 10 (Tails): {hits_at_10[1]}\n"
-            + f"Hits at 10 (All): {hits_at_10[2]}\n"
-            + f"Relative Hits at 10: {hits_at_10[2] / (2 * test_set_size)}\n"
-            + f"Mean rank (Heads): {mr[0]}\n"
-            + f"Mean rank (Tails): {mr[1]}\n"
-            + f"Mean rank (All): {mr[2]}\n"
+            data_set=data_set,
+            n=10,
         )
 
-        evaluator = Evaluator(
-            file_to_be_evaluated=file_to_be_evaluated,
-            is_apply_filtering=True,
+        # write the results to the specified file
+        Evaluator._write_result_object_to_file(
+            file_to_be_written=file_to_be_written,
+            result_object=results,
+            n=10,
         )
-        hits_at_10 = evaluator.calculate_hits_at(10)
-        test_set_size = len(data_set.test_set())
-        mr = evaluator.mean_rank()
-
-        filtered_text = (
-            "\nFiltered Results\n"
-            + "----------------\n"
-            + f"Test set size: {test_set_size}\n"
-            + f"Hits at 10 (Heads): {hits_at_10[0]}\n"
-            + f"Hits at 10 (Tails): {hits_at_10[1]}\n"
-            + f"Hits at 10 (All): {hits_at_10[2]}\n"
-            + f"Relative Hits at 10: {hits_at_10[2] / (2 * test_set_size)}\n"
-            + f"Mean rank (Heads): {mr[0]}\n"
-            + f"Mean rank (Tails): {mr[1]}\n"
-            + f"Mean rank (All): {mr[2]}\n"
-        )
-
-        with open(file_to_be_written, "w+", encoding="utf8") as f:
-            f.write(non_filtered_text + "\n")
-            f.write(filtered_text)
-
-        print(non_filtered_text + "\n" + filtered_text)
