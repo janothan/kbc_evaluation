@@ -244,7 +244,7 @@ class Evaluator:
         )
 
     @staticmethod
-    def _write_result_object_to_file(
+    def write_result_object_to_file(
         file_to_be_written: str,
         result_object: EvaluatorResult,
     ) -> None:
@@ -306,7 +306,7 @@ class Evaluator:
         )
 
         # write the results to the specified file
-        Evaluator._write_result_object_to_file(
+        Evaluator.write_result_object_to_file(
             file_to_be_written=file_to_be_written,
             result_object=results,
         )
