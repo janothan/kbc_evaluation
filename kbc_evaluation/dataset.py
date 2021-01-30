@@ -159,6 +159,9 @@ class ParsedSet:
         self.triple_predictions = {}
 
         # initialize lookup datastructures for filtering (contains only true statements)
+        # the maps are types as follows:
+        # key: str
+        # value: list of str
         self._sp_map = {}
         self._po_map = {}
 
@@ -178,6 +181,10 @@ class ParsedSet:
 
                 # parse the lines
                 truth, heads, tails = self._parse_lines(truth, heads, tails)
+
+                # triple predictions is a dictionary mapping from a triple(str, str, str) - representing (h, l, t) -
+                # to a tuple holding the list of predictions (unfiltered) where the first elements holds the head
+                # predictions and the last element holds the tail predictions.
                 self.triple_predictions[(truth[0], truth[1], truth[2])] = (heads, tails)
                 self.total_prediction_tasks += 2
 
@@ -185,33 +192,41 @@ class ParsedSet:
                 self._apply_filtering()
 
     def _apply_filtering(self) -> None:
-        """Loops over self.triple_predictions and applies the filtering."""
-        print("Apply Filtering")
+        """
+        Loops over self.triple_predictions and applies the filtering.
+        This method changes self.triple_predictions (deletes correct ones)
+        """
+        logger.info("Apply Filtering")
         new_triple_predictions = {}
         total = len(self.triple_predictions)
         with tqdm(total=total, file=sys.stdout) as pbar:
             for truth, prediction in self.triple_predictions.items():
                 # processing heads
                 heads = prediction[0]
+
+                # we are predicting heads currently, let's obtain all correct heads!
                 po_key = truth[1] + "_" + truth[2]
                 correct_heads = self._po_map[po_key]
+
                 new_heads = []
                 for predicted_head in heads:
                     if predicted_head == truth[0]:
                         new_heads.append(predicted_head)
-                        continue
+                        break  # before continue
                     if predicted_head not in correct_heads:
                         new_heads.append(predicted_head)
 
                 # processing tails
                 tails = prediction[1]
+
+                # let's obtain all correct tails!
                 sp_key = truth[0] + "_" + truth[1]
                 correct_tails = self._sp_map[sp_key]
                 new_tails = []
                 for predicted_tail in tails:
                     if predicted_tail == truth[2]:
                         new_tails.append(predicted_tail)
-                        continue
+                        break  # before continue
                     if predicted_tail not in correct_tails:
                         new_tails.append(predicted_tail)
 
