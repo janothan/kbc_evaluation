@@ -6,6 +6,7 @@ from kbc_evaluation.dataset import DataSet, ParsedSet
 
 logconf_file = os.path.join(os.path.dirname(__file__), "log.conf")
 logging.config.fileConfig(fname=logconf_file, disable_existing_loggers=False)
+logger = logging.getLogger(__name__)
 
 
 class EvaluatorResult:
@@ -22,12 +23,18 @@ class EvaluatorResult:
         filtered_mean_rank_heads: int,
         filtered_mean_rank_tails: int,
         filtered_mean_rank_all: int,
+        filtered_reciprocal_mean_rank_heads: float,
+        filtered_reciprocal_mean_rank_tails: float,
+        filtered_reciprocal_mean_rank_all: float,
         non_filtered_hits_at_n_heads: int,
         non_filtered_hits_at_n_tails: int,
         non_filtered_hits_at_n_all: int,
         non_filtered_mean_rank_heads: int,
         non_filtered_mean_rank_tails: int,
         non_filtered_mean_rank_all: int,
+        non_filtered_reciprocal_mean_rank_heads: float,
+        non_filtered_reciprocal_mean_rank_tails: float,
+        non_filtered_reciprocal_mean_rank_all: float,
     ):
         # setting the general variables
         self.evaluated_file = evaluated_file
@@ -44,6 +51,9 @@ class EvaluatorResult:
         self.filtered_mean_rank_heads = filtered_mean_rank_heads
         self.filtered_mean_rank_tails = filtered_mean_rank_tails
         self.filtered_mean_rank_all = filtered_mean_rank_all
+        self.filtered_reciprocal_mean_rank_heads = filtered_reciprocal_mean_rank_heads
+        self.filtered_reciprocal_mean_rank_tails = filtered_reciprocal_mean_rank_tails
+        self.filtered_reciprocal_mean_rank_all = filtered_reciprocal_mean_rank_all
 
         # setting the non-filtered results
         self.non_filtered_hits_at_n_heads = non_filtered_hits_at_n_heads
@@ -55,6 +65,15 @@ class EvaluatorResult:
         self.non_filtered_mean_rank_heads = non_filtered_mean_rank_heads
         self.non_filtered_mean_rank_tails = non_filtered_mean_rank_tails
         self.non_filtered_mean_rank_all = non_filtered_mean_rank_all
+        self.non_filtered_reciprocal_mean_rank_heads = (
+            non_filtered_reciprocal_mean_rank_heads
+        )
+        self.non_filtered_reciprocal_mean_rank_tails = (
+            non_filtered_reciprocal_mean_rank_tails
+        )
+        self.non_filtered_reciprocal_mean_rank_all = (
+            non_filtered_reciprocal_mean_rank_all
+        )
 
 
 class EvaluationRunner:
@@ -88,22 +107,30 @@ class EvaluationRunner:
             file_to_be_evaluated=self._file_to_be_evaluated,
         )
 
-    def mean_rank(self) -> Tuple[int, int, int]:
+    def mean_rank(self) -> (Tuple[int, int, int], Tuple[int, int, int]):
         """Calculates the mean rank using the given file.
 
         Returns
         -------
-        Tuple[int, int, int]
+        (Tuple[int, int, int], Tuple[int, int, int]) where the first position (position 0) captures the mean rank and
+        the second position (position 1) captures the mean reciprocal rank as documented below:
+        [0] Tuple[int, int, int]
             [0] Mean rank as int for heads (rounded float).
-            [0] Mean rank as int for tails (rounded float).
-            [0] Mean rank as int (rounded float).
+            [1] Mean rank as int for tails (rounded float).
+            [2] Mean rank as int (rounded float).
+        [1] Tuple[int, int, int]
+            [0] Mean reciprocal rank as int for heads.
+            [1] Mean reciprocal as int for tails.
+            [2] Mean reciprocal as int.
 
         """
-        print("Calculating Mean Rank")
+        logger.info("Calculating Mean Rank")
         ignored_heads = 0
         ignored_tails = 0
         head_rank = 0
         tail_rank = 0
+        reciprocal_head_rank = 0
+        reciprocal_tail_rank = 0
 
         for truth, prediction in self.parsed.triple_predictions.items():
             try:
@@ -111,6 +138,7 @@ class EvaluationRunner:
                     prediction[0].index(truth[0]) + 1
                 )  # (first position has index 0)
                 head_rank += h_index
+                reciprocal_head_rank += 1.0 / head_rank
             except ValueError:
                 logging.error(
                     f"ERROR: Failed to retrieve head predictions for (correct) head concept: {truth[0]} "
@@ -122,6 +150,7 @@ class EvaluationRunner:
                     prediction[1].index(truth[2]) + 1
                 )  # (first position has index 0)
                 tail_rank += t_index
+                reciprocal_tail_rank += 1.0 / tail_rank
             except ValueError:
                 logging.error(
                     f"ERROR: Failed to retrieve tail predictions for (correct) tail concept: {truth[2]} "
@@ -131,27 +160,55 @@ class EvaluationRunner:
 
         mean_head_rank = 0
         mean_tail_rank = 0
+        mean_reciprocal_head_rank = 0
+        mean_reciprocal_tail_rank = 0
         total_tasks = self.parsed.total_prediction_tasks
         if total_tasks - ignored_heads > 0:
-            mean_head_rank = head_rank / (total_tasks / 2 - ignored_heads)
+            denominator = total_tasks / 2.0 - ignored_heads
+            mean_head_rank = head_rank / denominator
+            mean_reciprocal_head_rank = reciprocal_head_rank / denominator
         if total_tasks / 2 - ignored_tails > 0:
-            mean_tail_rank = tail_rank / (total_tasks / 2 - ignored_tails)
+            denominator = total_tasks / 2 - ignored_tails
+            mean_tail_rank = tail_rank / denominator
+            mean_reciprocal_tail_rank = reciprocal_tail_rank / denominator
 
         logging.info(
-            f"Mean Head Rank: {mean_head_rank} ({ignored_heads} ignored lines)"
+            f"Mean Head Rank: {mean_head_rank} ({ignored_heads} ignored lines)\n"
+            + f"Mean Reciprocal Head Rank: {mean_reciprocal_head_rank} ({ignored_heads} ignored lines)"
         )
         logging.info(
-            f"Mean Tail Rank: {mean_tail_rank} ({ignored_tails} ignored lines)"
+            f"Mean Tail Rank: {mean_tail_rank} ({ignored_tails} ignored lines)\n"
+            + f"Mean Reciprocal Tail Rank: {mean_reciprocal_tail_rank} ({ignored_tails} ignored lines)"
         )
 
         mean_rank = 0
+        mean_reciprocal_rank = 0
         if (total_tasks - ignored_tails - ignored_heads) > 0:
-            mean_rank = (head_rank + tail_rank) / (
-                total_tasks - ignored_tails - ignored_heads
-            )
+            single_tasks = total_tasks / 2
+            mean_rank = (
+                head_rank / (single_tasks - ignored_heads)
+                + tail_rank / (single_tasks - ignored_tails)
+            ) / 2
+
+            total_completed_tasks = total_tasks - ignored_tails - ignored_heads
+            mean_reciprocal_rank = (
+                mean_head_rank
+                * ((single_tasks - ignored_heads) / total_completed_tasks)
+                + mean_tail_rank
+                * (single_tasks - ignored_tails)
+                / total_completed_tasks
+            ) / 2
         mean_rank_rounded = round(mean_rank)
         logging.info(f"Mean rank: {mean_rank}; rounded: {mean_rank_rounded}")
-        return round(mean_head_rank), round(mean_tail_rank), mean_rank_rounded
+        logging.info(f"Mean reciprocal rank: {mean_reciprocal_rank}")
+        return (
+            round(mean_head_rank),
+            round(mean_tail_rank),
+            mean_rank_rounded,
+            mean_reciprocal_head_rank,
+            mean_reciprocal_tail_rank,
+            mean_reciprocal_rank,
+        )
 
     def calculate_hits_at(self, n: int = 10) -> Tuple[int, int, int]:
         """Calculation of hits@n.
@@ -235,12 +292,18 @@ class Evaluator:
             filtered_mean_rank_heads=filtered_mr[0],
             filtered_mean_rank_tails=filtered_mr[1],
             filtered_mean_rank_all=filtered_mr[2],
+            filtered_reciprocal_mean_rank_heads=filtered_mr[3],
+            filtered_reciprocal_mean_rank_tails=filtered_mr[4],
+            filtered_reciprocal_mean_rank_all=filtered_mr[5],
             non_filtered_hits_at_n_heads=non_filtered_hits_at_10[0],
             non_filtered_hits_at_n_tails=non_filtered_hits_at_10[1],
             non_filtered_hits_at_n_all=non_filtered_hits_at_10[2],
             non_filtered_mean_rank_heads=non_filtered_mr[0],
             non_filtered_mean_rank_tails=non_filtered_mr[1],
             non_filtered_mean_rank_all=non_filtered_mr[2],
+            non_filtered_reciprocal_mean_rank_heads=non_filtered_mr[3],
+            non_filtered_reciprocal_mean_rank_tails=non_filtered_mr[4],
+            non_filtered_reciprocal_mean_rank_all=non_filtered_mr[5],
         )
 
     @staticmethod
@@ -279,7 +342,7 @@ class Evaluator:
             f.write(non_filtered_text + "\n")
             f.write(filtered_text)
 
-        print(non_filtered_text + "\n" + filtered_text)
+        logger.info(non_filtered_text + "\n" + filtered_text)
 
     @staticmethod
     def write_results_to_file(

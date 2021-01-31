@@ -151,8 +151,9 @@ class TestEvaluator:
         # as explained in eval_test_file_filtering_readme.md, MR for H is 3.333 and for T is 2.6
         # rounded, this is 3
         # the weighted (!) average is exactly three
-        expected = (3, 3, 3)
-        assert expected == result
+        assert result[0] == 3  # MR head
+        assert result[1] == 3  # MR tail
+        assert result[2] == 3  # MR all
 
     def test_write_results_to_file(self):
         test_file_path = "./tests/test_resources/eval_test_file.txt"
