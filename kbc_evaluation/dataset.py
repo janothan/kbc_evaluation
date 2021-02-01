@@ -1,3 +1,4 @@
+import json
 import os
 import logging.config
 import sys
@@ -32,6 +33,7 @@ class DataSet(Enum):
         os.path.join(
             package_directory, "datasets", "fb15k", "freebase_mtr100_mte100-valid.txt"
         ),
+        os.path.join(package_directory, "datasets", "fb15k", "entity2wikidata.json"),
     )
     WN18 = (
         os.path.join(package_directory, "datasets", "wn18", "wordnet-mlj12-test.txt"),
@@ -106,6 +108,13 @@ class DataSet(Enum):
                     tokens = line.split(sep="\t")
                     result[tokens[0]] = (tokens[1], tokens[2].rstrip())
             return result
+        elif self.value[3].endswith(".json"):
+            with open(self.value[3]) as json_file:
+                data = json.load(json_file)
+                result = {}
+                for key in data:
+                    result[key] = (data[key]["label"], data[key]["description"])
+                return result
 
     @staticmethod
     def _parse_tab_separated_data(file_path) -> List[List[str]]:

@@ -22,7 +22,8 @@ class TestDataSet:
         # basic axioms
         wn_map = DataSet.WN18.definitions_map()
         assert wn_map is not None
-        assert DataSet.FB15K.definitions_map() is None
+        fb15k_map = DataSet.FB15K.definitions_map()
+        assert fb15k_map is not None
 
         # concept check
         assert wn_map["08293982"][0] == "__coalition_NN_1"
@@ -31,8 +32,12 @@ class TestDataSet:
             == "an organization of people (or countries) involved in a pact or treaty"
         )
 
+        assert fb15k_map["/m/0102t4"][0] == "Marshall"
+        assert fb15k_map["/m/0102t4"][1] == "city in Texas, USA"
+
         # negative check
         assert "NOT_IN!" not in wn_map
+        assert "NOT_IN!" not in fb15k_map
 
     def test_write_training_file_nt(self):
         """Only makes sure that a file is written."""
