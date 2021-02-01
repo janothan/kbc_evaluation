@@ -151,3 +151,4 @@ wn_results_no_pprediction.txt
 MANIFEST.in
 wn_ann_evaluation.txt
 wn_ann_results.txt
+textual_predictions.txt

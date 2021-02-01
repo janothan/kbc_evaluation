@@ -1,4 +1,5 @@
-[this dataset has been downloaded from: https://everest.hds.utc.fr/doku.php?id=en:transe]
+[the FB15k dataset has been downloaded from: https://everest.hds.utc.fr/doku.php?id=en:transe]
+[the file entity2wikidata.json has been downloaded from: https://raw.githubusercontent.com/villmow/datasets_knowledge_embedding/master/FB15K/entity2wikidata.json]
 
 ----------------------------------
 -- Freebase FB15k data --  2013 --

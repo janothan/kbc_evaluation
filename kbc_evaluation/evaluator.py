@@ -322,6 +322,9 @@ class Evaluator:
             + f"Mean rank (Heads): {result_object.non_filtered_mean_rank_heads}\n"
             + f"Mean rank (Tails): {result_object.non_filtered_mean_rank_tails}\n"
             + f"Mean rank (All): {result_object.non_filtered_mean_rank_all}\n"
+            + f"Mean reciprocal rank (Heads): {result_object.non_filtered_reciprocal_mean_rank_heads}\n"
+            + f"Mean reciprocal rank (Tails): {result_object.non_filtered_reciprocal_mean_rank_tails}\n"
+            + f"Mean reciprocal rank (All): {result_object.non_filtered_reciprocal_mean_rank_all}\n"
         )
 
         filtered_text = (
@@ -335,6 +338,9 @@ class Evaluator:
             + f"Mean rank (Heads): {result_object.filtered_mean_rank_heads}\n"
             + f"Mean rank (Tails): {result_object.filtered_mean_rank_tails}\n"
             + f"Mean rank (All): {result_object.filtered_mean_rank_all}\n"
+            + f"Mean reciprocal rank (Heads): {result_object.filtered_reciprocal_mean_rank_heads}\n"
+            + f"Mean reciprocal rank (Tails): {result_object.filtered_reciprocal_mean_rank_tails}\n"
+            + f"Mean reciprocal rank (All): {result_object.filtered_reciprocal_mean_rank_all}\n"
         )
 
         with open(file_to_be_written, "w+", encoding="utf8") as f:

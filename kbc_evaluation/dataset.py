@@ -3,7 +3,7 @@ import logging.config
 import sys
 from enum import Enum
 import io
-from typing import List
+from typing import List, Dict, Tuple, Union
 import re
 from tqdm import tqdm
 
@@ -37,6 +37,9 @@ class DataSet(Enum):
         os.path.join(package_directory, "datasets", "wn18", "wordnet-mlj12-test.txt"),
         os.path.join(package_directory, "datasets", "wn18", "wordnet-mlj12-train.txt"),
         os.path.join(package_directory, "datasets", "wn18", "wordnet-mlj12-valid.txt"),
+        os.path.join(
+            package_directory, "datasets", "wn18", "wordnet-mlj12-definitions.txt"
+        ),
     )
 
     def test_set(self) -> List[List[str]]:
@@ -68,6 +71,41 @@ class DataSet(Enum):
             A list of parsed triples.
         """
         return self._parse_tab_separated_data(self.valid_set_path())
+
+    def definitions_map(self) -> Union[Dict[str, Tuple[str, str]], None]:
+        """Returns the map of definitions.
+
+        Returns
+        -------
+            Union[Dict[str, Tuple[str, str]], None]
+            None if no definitions map exists.
+            Else a map where:
+                key: str
+                The key.
+                value: Tuple[str, str]
+                [0] concept id
+                [1] description
+        """
+        try:
+            if self.value[3] is None or self.value[3] == "":
+                logger.error(
+                    "No definitions map implemented for this dataset. Returning None."
+                )
+                return
+        except IndexError:
+            logger.error(
+                "No definitions map implemented for this dataset. Returning None."
+            )
+            return None
+
+        if self.value[3].endswith(".txt"):
+            result = {}
+            with open(self.value[3], "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.replace("\n", "")
+                    tokens = line.split(sep="\t")
+                    result[tokens[0]] = (tokens[1], tokens[2].rstrip())
+            return result
 
     @staticmethod
     def _parse_tab_separated_data(file_path) -> List[List[str]]:
@@ -143,15 +181,22 @@ class DataSet(Enum):
 
 
 class ParsedSet:
-    def __init__(self, file_to_be_evaluated: str, is_apply_filtering: bool = False):
+    def __init__(
+        self,
+        file_to_be_evaluated: str,
+        is_apply_filtering: bool = False,
+        triples_to_read: int = None,
+    ):
         """Constructor. Note that the file is immediately parsed.
 
         Parameters
         ----------
         file_to_be_evaluated : str
-            Path to the file that shall be evaluated.
+            Path to the file that shall be evaluated (in the prediction file format).
         is_apply_filtering : bool
             True if filtering shall be applied as described in Bordes et al.
+        triples_to_read : int
+            Optional limit on the number of triples to be read. If None, all triples will be read.
         """
         self.file_to_be_evaluated = file_to_be_evaluated
         self.is_apply_filtering = is_apply_filtering
