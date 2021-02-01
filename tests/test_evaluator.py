@@ -88,8 +88,12 @@ class TestEvaluator:
         runner = EvaluationRunner(
             file_to_be_evaluated=test_file_path, is_apply_filtering=True
         )
+
+        # [2] encodes "all"
         assert runner.calculate_hits_at(1)[2] == 3
         assert runner.calculate_hits_at(3)[2] == 9
+
+        # [0]: heads, [1]: tails, [2]: all
         assert runner.calculate_hits_at(10)[0] == 6
         assert runner.calculate_hits_at(10)[1] == 5
         assert runner.calculate_hits_at(10)[2] == 11
@@ -128,13 +132,35 @@ class TestEvaluator:
         test_file_path = "./tests/test_resources/eval_test_file.txt"
         assert os.path.isfile(test_file_path)
         runner = EvaluationRunner(file_to_be_evaluated=test_file_path)
-        assert runner.mean_rank()[2] == 3
+
+        ranks = runner.mean_rank()
+
+        # [0] encodes mean rank heads
+        assert round((6 + 1) / 2) == ranks[0]
+
+        # [1] encodes mean rank tails
+        assert round((3 + 1) / 2) == ranks[1]
+
+        # [2] encodes mean rank all
+        assert 3 == ranks[2]
+
+        # [3] encodes mrr heads
+        assert (1 / 6 + 1) / 2 == ranks[3]
+
+        # [4] encodes mrr tails
+        assert (1 / 3 + 1) / 2 == ranks[4]
+
+        # [5] encodes mrr all
+        mrr_all = (1 / 6 + 1 + 1 / 3 + 1) / 4
+        assert mrr_all == ranks[5]
 
     def test_mean_rank_with_confidence(self):
         test_file_path = "./tests/test_resources/eval_test_file_with_confidences.txt"
         assert os.path.isfile(test_file_path)
         runner = EvaluationRunner(file_to_be_evaluated=test_file_path)
-        assert runner.mean_rank()[2] == 3
+        rank = runner.mean_rank()
+        assert 3 == rank[2]
+        assert (1 / 6 + 1 + 1 / 3 + 1) / 4 == rank[5]
 
     def test_mean_rank_with_filtering(self):
         test_file_path = "./tests/test_resources/eval_test_file_filtering.txt"
@@ -151,9 +177,19 @@ class TestEvaluator:
         # as explained in eval_test_file_filtering_readme.md, MR for H is 3.333 and for T is 2.6
         # rounded, this is 3
         # the weighted (!) average is exactly three
-        assert result[0] == 3  # MR head
-        assert result[1] == 3  # MR tail
-        assert result[2] == 3  # MR all
+        assert 3 == result[0]  # MR head
+        assert 3 == result[1]  # MR tail
+        assert 3 == result[2]  # MR all
+
+        # test MRR
+        mrr_heads = (1 / 6 + 1 / 6 + 1 + 1 / 3 + 1 / 3 + 1) / 6
+        assert mrr_heads == result[3]
+
+        mrr_tails = (1 / 3 + 1 / 3 + 1 + 1 / 3 + 1 / 3) / 5
+        assert mrr_tails == result[4]
+
+        mrr = (6 * mrr_heads + 5 * mrr_tails) / 11
+        assert mrr == result[5]
 
     def test_write_results_to_file(self):
         test_file_path = "./tests/test_resources/eval_test_file.txt"

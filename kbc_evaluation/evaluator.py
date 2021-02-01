@@ -107,21 +107,20 @@ class EvaluationRunner:
             file_to_be_evaluated=self._file_to_be_evaluated,
         )
 
-    def mean_rank(self) -> (Tuple[int, int, int], Tuple[int, int, int]):
-        """Calculates the mean rank using the given file.
+    def mean_rank(self) -> Tuple[int, int, int, float, float, float]:
+        """Calculates the mean rank and mean reciprocal rank using the given file.
 
         Returns
         -------
-        (Tuple[int, int, int], Tuple[int, int, int]) where the first position (position 0) captures the mean rank and
-        the second position (position 1) captures the mean reciprocal rank as documented below:
-        [0] Tuple[int, int, int]
-            [0] Mean rank as int for heads (rounded float).
-            [1] Mean rank as int for tails (rounded float).
-            [2] Mean rank as int (rounded float).
-        [1] Tuple[int, int, int]
-            [0] Mean reciprocal rank as int for heads.
-            [1] Mean reciprocal as int for tails.
-            [2] Mean reciprocal as int.
+        Tuple[int, int, int, float, float, float]
+        The first three elements are for MR, the last three for MRR.
+
+        [0] Mean rank as int for heads (rounded float).
+        [1] Mean rank as int for tails (rounded float).
+        [2] Mean rank as int (rounded float).
+        [3] Mean reciprocal rank as float for heads.
+        [4] Mean reciprocal as float for tails.
+        [5] Mean reciprocal as float.
 
         """
         logger.info("Calculating Mean Rank")
@@ -138,7 +137,7 @@ class EvaluationRunner:
                     prediction[0].index(truth[0]) + 1
                 )  # (first position has index 0)
                 head_rank += h_index
-                reciprocal_head_rank += 1.0 / head_rank
+                reciprocal_head_rank += 1.0 / h_index
             except ValueError:
                 logging.error(
                     f"ERROR: Failed to retrieve head predictions for (correct) head concept: {truth[0]} "
@@ -150,7 +149,7 @@ class EvaluationRunner:
                     prediction[1].index(truth[2]) + 1
                 )  # (first position has index 0)
                 tail_rank += t_index
-                reciprocal_tail_rank += 1.0 / tail_rank
+                reciprocal_tail_rank += 1.0 / t_index
             except ValueError:
                 logging.error(
                     f"ERROR: Failed to retrieve tail predictions for (correct) tail concept: {truth[2]} "
@@ -192,12 +191,12 @@ class EvaluationRunner:
 
             total_completed_tasks = total_tasks - ignored_tails - ignored_heads
             mean_reciprocal_rank = (
-                mean_head_rank
+                mean_reciprocal_head_rank
                 * ((single_tasks - ignored_heads) / total_completed_tasks)
-                + mean_tail_rank
+                + mean_reciprocal_tail_rank
                 * (single_tasks - ignored_tails)
                 / total_completed_tasks
-            ) / 2
+            )
         mean_rank_rounded = round(mean_rank)
         logging.info(f"Mean rank: {mean_rank}; rounded: {mean_rank_rounded}")
         logging.info(f"Mean reciprocal rank: {mean_reciprocal_rank}")
