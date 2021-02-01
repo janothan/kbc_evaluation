@@ -193,6 +193,7 @@ class ParsedSet:
     def __init__(
         self,
         file_to_be_evaluated: str,
+        data_set: DataSet,
         is_apply_filtering: bool = False,
         is_stop_early: bool = True,
     ):
@@ -207,7 +208,10 @@ class ParsedSet:
         is_stop_early : bool
             By default true. Stop parsing after the correct prediction was found. This greatly improves memory and
             disk consumption. In some cases (debugging, analyzing results), it may make sense to not stop early.
+        data_set : DataSet
+            The dataset that is to be used.
         """
+        self.data_set = data_set
         self.file_to_be_evaluated = file_to_be_evaluated
         self.is_apply_filtering = is_apply_filtering
         self.total_prediction_tasks = 0
@@ -253,6 +257,7 @@ class ParsedSet:
         This method changes self.triple_predictions (deletes correct ones)
         """
         logger.info("Apply Filtering")
+        self._parse_dataset_files()
         new_triple_predictions = {}
         total = len(self.triple_predictions)
         with tqdm(total=total, file=sys.stdout) as pbar:
@@ -296,6 +301,26 @@ class ParsedSet:
                 new_triple_predictions[truth] = (new_heads, new_tails)
                 pbar.update(1)
         self.triple_predictions = new_triple_predictions
+
+    def _parse_dataset_files(self) -> None:
+        """This is only required for filtering.
+
+        Returns
+        -------
+
+        """
+        logger.info("Read Training File")
+        train_set = self.data_set.train_set()
+        for triple in train_set:
+            self._add_triple_to_filter_set(triple)
+        logger.info("Read Validation File")
+        validation_set = self.data_set.train_set()
+        for triple in validation_set:
+            self._add_triple_to_filter_set(triple)
+        logger.info("Read Test File")
+        test_set = self.data_set.test_set()
+        for triple in test_set:
+            self._add_triple_to_filter_set(triple)
 
     def _parse_lines(
         self, truth_line: str, heads_line: str, tails_line
@@ -363,7 +388,7 @@ class ParsedSet:
         Parameters
         ----------
         triple : List
-            The triple to be added.
+            The triple to be added. The list has a length of 3.
         """
         sp_key = triple[0] + "_" + triple[1]
         po_key = triple[1] + "_" + triple[2]

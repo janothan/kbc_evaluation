@@ -79,13 +79,20 @@ class EvaluatorResult:
 class EvaluationRunner:
     """This class calculates evaluation scores for a single file."""
 
-    def __init__(self, file_to_be_evaluated: str, is_apply_filtering: bool = False):
+    def __init__(
+        self,
+        file_to_be_evaluated: str,
+        data_set: DataSet,
+        is_apply_filtering: bool = False,
+    ):
         """Constructor
 
         Parameters
         ----------
         file_to_be_evaluated : str
             Path to the text file with the predicted links that shall be evaluated.
+        data_set : DataSet
+            The dataset for which predictions have been made.
         is_apply_filtering : bool
             Indicates whether filtering is desired (if True, results will likely improve).
         """
@@ -105,6 +112,7 @@ class EvaluationRunner:
         self.parsed = ParsedSet(
             is_apply_filtering=self._is_apply_filtering,
             file_to_be_evaluated=self._file_to_be_evaluated,
+            data_set=data_set,
         )
 
     def mean_rank(self) -> Tuple[int, int, int, float, float, float]:
@@ -268,6 +276,7 @@ class Evaluator:
         evaluator = EvaluationRunner(
             file_to_be_evaluated=file_to_be_evaluated,
             is_apply_filtering=False,
+            data_set=data_set,
         )
 
         non_filtered_hits_at_10 = evaluator.calculate_hits_at(n)
@@ -277,6 +286,7 @@ class Evaluator:
         evaluator = EvaluationRunner(
             file_to_be_evaluated=file_to_be_evaluated,
             is_apply_filtering=True,
+            data_set=data_set,
         )
         filtered_hits_at_10 = evaluator.calculate_hits_at(n)
         filtered_mr = evaluator.mean_rank()

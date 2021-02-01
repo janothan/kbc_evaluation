@@ -19,7 +19,9 @@ class TestEvaluator:
             os.chdir("./..")
         assert os.path.isfile(test_file_path)
 
-        runner = EvaluationRunner(file_to_be_evaluated=test_file_path)
+        runner = EvaluationRunner(
+            file_to_be_evaluated=test_file_path, data_set=DataSet.WN18
+        )
         assert runner.calculate_hits_at(1)[2] == 2
         assert runner.calculate_hits_at(3)[2] == 3
         assert runner.calculate_hits_at(10)[2] == 4
@@ -30,7 +32,9 @@ class TestEvaluator:
             os.chdir("./..")
         assert os.path.isfile(test_file_path)
 
-        runner = EvaluationRunner(file_to_be_evaluated=test_file_path)
+        runner = EvaluationRunner(
+            file_to_be_evaluated=test_file_path, data_set=DataSet.WN18
+        )
         assert runner.calculate_hits_at(1)[2] == 2
         assert runner.calculate_hits_at(3)[2] == 3
         assert runner.calculate_hits_at(10)[2] == 4
@@ -42,7 +46,9 @@ class TestEvaluator:
         assert os.path.isfile(test_file_path)
 
         results = Evaluator.calculate_results(
-            file_to_be_evaluated=test_file_path, data_set=DataSet.WN18, n=1
+            file_to_be_evaluated=test_file_path,
+            data_set=DataSet.WN18,
+            n=1,
         )
         assert results.filtered_hits_at_n_all == 2
         assert results.filtered_hits_at_n_all >= results.filtered_hits_at_n_all
@@ -86,7 +92,9 @@ class TestEvaluator:
         assert os.path.isfile(test_file_path)
 
         runner = EvaluationRunner(
-            file_to_be_evaluated=test_file_path, is_apply_filtering=True
+            file_to_be_evaluated=test_file_path,
+            is_apply_filtering=True,
+            data_set=DataSet.WN18,
         )
 
         # [2] encodes "all"
@@ -122,7 +130,9 @@ class TestEvaluator:
         assert os.path.isfile(test_file_path)
 
         runner = EvaluationRunner(
-            file_to_be_evaluated=test_file_path, is_apply_filtering=True
+            file_to_be_evaluated=test_file_path,
+            is_apply_filtering=True,
+            data_set=DataSet.WN18,
         )
         assert runner.calculate_hits_at(1)[2] == 2
         assert runner.calculate_hits_at(3)[2] == 4
@@ -131,7 +141,9 @@ class TestEvaluator:
     def test_mean_rank(self):
         test_file_path = "./tests/test_resources/eval_test_file.txt"
         assert os.path.isfile(test_file_path)
-        runner = EvaluationRunner(file_to_be_evaluated=test_file_path)
+        runner = EvaluationRunner(
+            file_to_be_evaluated=test_file_path, data_set=DataSet.WN18
+        )
 
         ranks = runner.mean_rank()
 
@@ -157,7 +169,9 @@ class TestEvaluator:
     def test_mean_rank_with_confidence(self):
         test_file_path = "./tests/test_resources/eval_test_file_with_confidences.txt"
         assert os.path.isfile(test_file_path)
-        runner = EvaluationRunner(file_to_be_evaluated=test_file_path)
+        runner = EvaluationRunner(
+            file_to_be_evaluated=test_file_path, data_set=DataSet.WN18
+        )
         rank = runner.mean_rank()
         assert 3 == rank[2]
         assert (1 / 6 + 1 + 1 / 3 + 1) / 4 == rank[5]
@@ -169,7 +183,9 @@ class TestEvaluator:
         assert os.path.isfile(test_file_path)
 
         runner = EvaluationRunner(
-            file_to_be_evaluated=test_file_path, is_apply_filtering=True
+            file_to_be_evaluated=test_file_path,
+            is_apply_filtering=True,
+            data_set=DataSet.WN18,
         )
         result = runner.mean_rank()
 
@@ -206,3 +222,17 @@ class TestEvaluator:
         )
         assert os.path.isfile("./results_test.txt")
         os.remove("./results_test.txt")
+
+    def test_filtering_with_fb15k(self):
+        test_file_path = "./tests/test_resources/freebase_filtering_example.txt"
+        assert os.path.isfile(test_file_path)
+
+        runner = EvaluationRunner(
+            file_to_be_evaluated=test_file_path,
+            data_set=DataSet.FB15K,
+            is_apply_filtering=True,
+        )
+        hits_at_2 = runner.calculate_hits_at(2)
+        assert hits_at_2[0] == 1
+        assert hits_at_2[1] == 1
+        assert hits_at_2[2] == 2
