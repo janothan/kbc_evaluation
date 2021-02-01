@@ -47,6 +47,7 @@ class Util:
             file_to_be_evaluated=prediction_file,
             is_apply_filtering=is_apply_filtering,
             is_stop_early=False,
+            data_set=data_set,
         )
 
         definitions_map = data_set.definitions_map()
@@ -90,18 +91,3 @@ class Util:
 
         with open(file_to_be_written, "w+", encoding="utf-8") as f:
             f.write(result_string)
-
-
-def main():
-    Util.write_sample_predictions(
-        prediction_file="/Users/janportisch/TMP/wn_averaged_most_similar.txt",
-        file_to_be_written="./textual_predictions.txt",
-        data_set=DataSet.WN18,
-        is_apply_filtering=True,
-        top_predictions=10,
-        number_of_triples=100,
-    )
-
-
-if __name__ == "__main__":
-    main()

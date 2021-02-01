@@ -237,9 +237,9 @@ class EvaluationRunner:
 
         for truth, prediction in self.parsed.triple_predictions.items():
             # perform the actual evaluation
-            if truth[0] in prediction[0][: (n + 1)]:
+            if truth[0] in prediction[0][:n]:
                 heads_hits += 1
-            if truth[2] in prediction[1][: (n + 1)]:
+            if truth[2] in prediction[1][:n]:
                 tails_hits += 1
 
         result = heads_hits + tails_hits

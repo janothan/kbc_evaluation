@@ -314,7 +314,7 @@ class ParsedSet:
         for triple in train_set:
             self._add_triple_to_filter_set(triple)
         logger.info("Read Validation File")
-        validation_set = self.data_set.train_set()
+        validation_set = self.data_set.valid_set()
         for triple in validation_set:
             self._add_triple_to_filter_set(triple)
         logger.info("Read Test File")

@@ -131,8 +131,8 @@ class TestEvaluator:
 
         runner = EvaluationRunner(
             file_to_be_evaluated=test_file_path,
-            is_apply_filtering=True,
             data_set=DataSet.WN18,
+            is_apply_filtering=True,
         )
         assert runner.calculate_hits_at(1)[2] == 2
         assert runner.calculate_hits_at(3)[2] == 4
@@ -236,3 +236,8 @@ class TestEvaluator:
         assert hits_at_2[0] == 1
         assert hits_at_2[1] == 1
         assert hits_at_2[2] == 2
+
+        hits_at_1 = runner.calculate_hits_at(1)
+        assert hits_at_1[0] == 0
+        assert hits_at_1[1] == 0
+        assert hits_at_1[2] == 0
