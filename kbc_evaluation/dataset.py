@@ -194,7 +194,7 @@ class ParsedSet:
         self,
         file_to_be_evaluated: str,
         is_apply_filtering: bool = False,
-        triples_to_read: int = None,
+        is_stop_early: bool = True,
     ):
         """Constructor. Note that the file is immediately parsed.
 
@@ -204,13 +204,15 @@ class ParsedSet:
             Path to the file that shall be evaluated (in the prediction file format).
         is_apply_filtering : bool
             True if filtering shall be applied as described in Bordes et al.
-        triples_to_read : int
-            Optional limit on the number of triples to be read. If None, all triples will be read.
+        is_stop_early : bool
+            By default true. Stop parsing after the correct prediction was found. This greatly improves memory and
+            disk consumption. In some cases (debugging, analyzing results), it may make sense to not stop early.
         """
         self.file_to_be_evaluated = file_to_be_evaluated
         self.is_apply_filtering = is_apply_filtering
         self.total_prediction_tasks = 0
         self.triple_predictions = {}
+        self.is_stop_early = is_stop_early
 
         # initialize lookup datastructures for filtering (contains only true statements)
         # the maps are types as follows:
@@ -266,7 +268,10 @@ class ParsedSet:
                 for predicted_head in heads:
                     if predicted_head == truth[0]:
                         new_heads.append(predicted_head)
-                        break  # before continue
+                        if self.is_stop_early:
+                            break
+                        else:
+                            continue
                     if predicted_head not in correct_heads:
                         new_heads.append(predicted_head)
 
@@ -280,7 +285,10 @@ class ParsedSet:
                 for predicted_tail in tails:
                     if predicted_tail == truth[2]:
                         new_tails.append(predicted_tail)
-                        break  # before continue
+                        if self.is_stop_early:
+                            break
+                        else:
+                            continue
                     if predicted_tail not in correct_tails:
                         new_tails.append(predicted_tail)
 

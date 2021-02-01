@@ -22,8 +22,31 @@ class Util:
         top_predictions: int = 10,
         number_of_triples: int = 100,
     ) -> None:
+        """Method to write human-understandable predictions.
+
+        Parameters
+        ----------
+        prediction_file : str
+            The file with the predictions.
+        file_to_be_written : str
+            The evaluation file that shall be written.
+        data_set : DataSet
+            The dataset that is used.
+        is_apply_filtering : True
+            True if filtered predictions shall be shown, else false.
+        top_predictions : int
+            Out of the predictions, the top N of the predictions.
+        number_of_triples : int
+            The number of triples to be evaluated (in most cases 100 or 1000 may be sufficient).
+
+        Returns
+        -------
+        None
+        """
         predictions_set = ParsedSet(
-            file_to_be_evaluated=prediction_file, is_apply_filtering=is_apply_filtering
+            file_to_be_evaluated=prediction_file,
+            is_apply_filtering=is_apply_filtering,
+            is_stop_early=False,
         )
 
         definitions_map = data_set.definitions_map()

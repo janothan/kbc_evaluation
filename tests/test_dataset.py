@@ -25,13 +25,14 @@ class TestDataSet:
         fb15k_map = DataSet.FB15K.definitions_map()
         assert fb15k_map is not None
 
-        # concept check
+        # concept check wn
         assert wn_map["08293982"][0] == "__coalition_NN_1"
         assert (
             wn_map["08293982"][1]
             == "an organization of people (or countries) involved in a pact or treaty"
         )
 
+        # concept check fb15k
         assert fb15k_map["/m/0102t4"][0] == "Marshall"
         assert fb15k_map["/m/0102t4"][1] == "city in Texas, USA"
 
